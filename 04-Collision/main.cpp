@@ -32,6 +32,7 @@ o
 #include "Brick.h"
 #include "Goomba.h"
 #include "FirePots.h"
+#include"Map.h"
 
 #define WINDOW_CLASS_NAME L"SampleWindow"
 #define MAIN_WINDOW_TITLE L"04 - Collision"
@@ -46,14 +47,17 @@ o
 #define ID_TEX_ENEMY 10
 #define ID_TEX_MISC 20
 #define ID_TEX_FIREPOTS 30
+#define ID_TEX_MAP 40
 CGame *game;
 
 Simon *simon;
 CGoomba *goomba;
 FirePots *firepots;
+Map *map;
 
 vector<LPGAMEOBJECT> objects;
 vector<LPGAMEOBJECT> objects2;
+vector<LPGAMEOBJECT> GameMap;
 
 class CSampleKeyHander : public CKeyEventHandler
 {
@@ -94,9 +98,17 @@ void CSampleKeyHander::KeyState(BYTE *states)
 	// disable control key when Mario die 
 	if (simon->GetState() == SIMON_STATE_DIE) return;
 	if (game->IsKeyDown(DIK_RIGHT))
+	{
+		if (simon->isAttack())
+			return;
 		simon->SetState(SIMON_STATE_WALKING_RIGHT);
+	}
 	else if (game->IsKeyDown(DIK_LEFT))
+	{
+		if (simon->isAttack())
+			return;
 		simon->SetState(SIMON_STATE_WALKING_LEFT);
+	}
 	else
 		simon->SetState(SIMON_STATE_IDLE);
 }
@@ -127,6 +139,7 @@ void LoadResources()
 	textures->Add(ID_TEX_MISC, L"textures\\misc.png", D3DCOLOR_XRGB(176, 224, 248));
 	textures->Add(ID_TEX_ENEMY, L"textures\\enemies.png", D3DCOLOR_XRGB(3, 26, 110));
 	textures->Add(ID_TEX_FIREPOTS, L"textures\\FirePots.png", D3DCOLOR_XRGB(34, 177, 76));
+	textures->Add(ID_TEX_MAP, L"textures\\Map.png", D3DCOLOR_XRGB(0,0,0));
 
 	//textures->Add(ID_TEX_BBOX, L"textures\\bbox.png", D3DCOLOR_XRGB(255, 255, 255));
 
@@ -136,25 +149,6 @@ void LoadResources()
 
 	LPDIRECT3DTEXTURE9 texSimon = textures->Get(ID_TEX_SIMON);
 
-	//// big
-	//sprites->Add(10001, 736, 9, 752, 39, texSimon);		// idle right
-
-	//sprites->Add(10002, 682, 9, 697, 39, texSimon);		// walk
-	//sprites->Add(10003, 711, 8, 723, 39, texSimon);
-
-	//sprites->Add(10011, 81, 10, 97, 40, texSimon);		// idle left
-	//sprites->Add(10012, 136, 10, 151, 40, texSimon);		// walk
-	//sprites->Add(10013, 110, 9, 122, 40, texSimon);
-	//sprites->Add(10099, 513, 24, 545, 39, texSimon);		// die 
-
-	//// small
-	//sprites->Add(10021, 247, 0, 259, 15, texMario);			// idle small right
-	//sprites->Add(10022, 275, 0, 291, 15, texMario);			// walk 
-	//sprites->Add(10023, 306, 0, 320, 15, texMario);			// 
-	//sprites->Add(10031, 187, 0, 198, 15, texMario);			// idle small left
-
-	//sprites->Add(10032, 155, 0, 170, 15, texMario);			// walk
-	//sprites->Add(10033, 125, 0, 139, 15, texMario);			// 
 	ifstream infile;
 	infile.open("Simon.txt");
 	int arr[5];
@@ -176,13 +170,40 @@ void LoadResources()
 	sprites->Add(20002, 3, 4, 19, 36, texFirePots);
 	sprites->Add(20003, 30, 4, 46, 36, texFirePots);
 
-	LPANIMATION ani;
+	LPDIRECT3DTEXTURE9 texMap = textures->Get(ID_TEX_MAP);
+	sprites->Add(0, 0, 0, 32, 32, texMap);
+	sprites->Add(1, 32, 0, 64, 32, texMap);
+	sprites->Add(2, 64, 0, 96, 32, texMap);
+	sprites->Add(3, 92, 0, 128, 32, texMap);
+	sprites->Add(4, 124, 0, 160, 32, texMap);
 
-	ani = new CAnimation(100);	//simon idle big right
+	LPANIMATION ani;
+	/*infile.open("SimonAni.txt"); int n;
+	while(infile)
+	{
+		infile >> n;
+		if (n < 10)
+		{
+			infile.ignore('\n');
+			while (infile)
+			{
+				int *arr = new int[n];
+				for (int i=0;i<n;i++)
+				{
+					infile >> arr[i];
+					ani->Add(arr[i]);
+					infile.ignore('\n');
+				}
+				for
+			}
+		}
+
+	}*/
+	ani = new CAnimation(100);	//simon idle right
 	ani->Add(10001);
 	animations->Add(400, ani);
 
-	ani = new CAnimation(100);	// idle big left
+	ani = new CAnimation(100);	// idle left
 	ani->Add(10011);
 	animations->Add(401, ani);
 
@@ -225,6 +246,21 @@ void LoadResources()
 	ani->Add(20003);
 	animations->Add(602, ani);
 
+	ani = new CAnimation(100);
+	ani->Add(0);
+	animations->Add(603, ani);
+	ani = new CAnimation(100);
+	ani->Add(1);
+	animations->Add(604, ani);
+	ani = new CAnimation(100);
+	ani->Add(2);
+	animations->Add(605, ani);
+	ani = new CAnimation(100);
+	ani->Add(3);
+	animations->Add(606, ani);
+	ani = new CAnimation(100);
+	ani->Add(4);
+	animations->Add(607, ani);
 	//ani = new CAnimation(300);		// Goomba walk
 	//ani->Add(30001);
 	//ani->Add(30002);
@@ -245,23 +281,6 @@ void LoadResources()
 	simon->SetPosition(100.0f, 0);
 	objects.push_back(simon);
 
-	/*for (int i = 0; i < 5; i++)
-	{
-		CBrick *brick = new CBrick();
-		brick->AddAnimation(601);
-		brick->SetPosition(100.0f + i * 60.0f, 74.0f);
-		objects.push_back(brick);
-
-		brick = new CBrick();
-		brick->AddAnimation(601);
-		brick->SetPosition(100.0f + i * 60.0f, 90.0f);
-		objects.push_back(brick);
-
-		brick = new CBrick();
-		brick->AddAnimation(601);
-		brick->SetPosition(84.0f + i * 60.0f, 90.0f);
-		objects.push_back(brick);
-	}*/
 
 
 	for (int i = 0; i < 30; i++)
@@ -288,7 +307,16 @@ void LoadResources()
 	//	goomba->SetState(GOOMBA_STATE_WALKING);
 	//	objects.push_back(goomba);
 	//}
-
+	int x = 603, n = 0;
+	for (int i = 0; i < 5; i++)
+	{
+		map = new Map();
+		map->AddAnimation(x);
+		map->SetPosition(-65+ i*n,0 );
+		GameMap.push_back(map);
+		x++;
+		n = 31.0f;
+	}
 }
 
 /*
@@ -345,6 +373,10 @@ void Render()
 		for (int i = 0; i < objects2.size(); i++)
 		{
 			objects2[i]->Render();
+		}
+		for (int i = 0; i < GameMap.size(); i++)
+		{
+			GameMap[i]->Render();
 		}
 		spriteHandler->End();
 		d3ddv->EndScene();

@@ -91,36 +91,32 @@ void Simon::Update(DWORD dt, vector<LPGAMEOBJECT> *coObjects)
 
 void Simon::Render()
 {
-	int ani; int delay = 100;
+	int ani = SIMON_STATE_IDLE;
 	if (state == SIMON_STATE_DIE)
 		ani = SIMON_ANI_DIE;
-	else if (vx == 0)
+	if (isAttacking)
 	{
-		if (state == SIMON_STATE_ATTACK)
-		{
-			if (nx > 0)
-			{
-				ani = SIMON_ANI_ATTACK_RIGHT;
-			}
-			else {
-				ani = SIMON_ANI_ATTACK_LEFT;
-			}
-			
-		}
-		else if (state == SIMON_STATE_IDLE)
-		{
-			if (nx > 0) ani = SIMON_ANI_BIG_IDLE_RIGHT;
-			else ani = SIMON_ANI_BIG_IDLE_LEFT;
-		}
+		if (nx > 0)
+			ani = SIMON_ANI_ATTACK_RIGHT;
+		else
+			ani = SIMON_ANI_ATTACK_LEFT;
 	}
-	else if (vx > 0)
-		ani = SIMON_ANI_BIG_WALKING_RIGHT;
-	else
-		ani = SIMON_ANI_BIG_WALKING_LEFT;
+	else {
+		if(vx==0)
+		{
+		 if (nx > 0) ani = SIMON_ANI_BIG_IDLE_RIGHT;
+		    else ani = SIMON_ANI_BIG_IDLE_LEFT;
+	    }
+	    else if (vx > 0)
+		   ani = SIMON_ANI_BIG_WALKING_RIGHT;
+	    else
+		    ani = SIMON_ANI_BIG_WALKING_LEFT;
+	}
 	int alpha = 255;
-	if (untouchable) alpha = 128;
 	animations[ani]->Render(x, y, alpha);
 	RenderBoundingBox();
+	if (animations[ani]->GetCurrentFrame() == 2)
+		isAttacking = false;
 }
 
 void Simon::SetState(int state)
@@ -144,8 +140,9 @@ void Simon::SetState(int state)
 		vx = 0;
 		break;
 	case SIMON_STATE_ATTACK:
-		vx = 0;
-		break;
+	   vx = 0;
+	   isAttacking = true;
+	   break;
 	case SIMON_STATE_DIE:
 		vy = -MARIO_DIE_DEFLECT_SPEED;
 		break;

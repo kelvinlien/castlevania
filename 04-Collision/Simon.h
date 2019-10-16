@@ -41,6 +41,7 @@
 class Simon : public CGameObject
 {
 	int level;
+	bool isAttacking=false;
 	int untouchable;
 	DWORD untouchable_start;
 public:
@@ -54,6 +55,6 @@ public:
 	void SetState(int state);
 	void SetLevel(int l) { level = l; }
 	void StartUntouchable() { untouchable = 1; untouchable_start = GetTickCount(); }
-
+	bool isAttack() { return isAttacking; };
 	virtual void GetBoundingBox(float &left, float &top, float &right, float &bottom);
 };
