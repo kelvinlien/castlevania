@@ -8,7 +8,7 @@ class Camera
 public:
 	Camera();
 	~Camera();
-	Camera *getInstance();
+	static Camera *getInstance();
 	D3DXVECTOR2 getPosition();
 	void setPosition(float x, float y);
 

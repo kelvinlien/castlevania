@@ -2,11 +2,15 @@
 
 Camera::Camera()
 {
+	cam_x = 0;
+	cam_y = 0;
 }
 
 Camera::~Camera()
 {
 }
+
+Camera* Camera::cam = NULL;
 
 Camera *Camera::getInstance()	//singleton design pattern
 {

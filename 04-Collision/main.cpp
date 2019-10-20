@@ -32,7 +32,9 @@ o
 #include "Brick.h"
 #include "Goomba.h"
 #include "FirePots.h"
-#include"Map.h"
+#include "Map.h"
+//#include "Camera.h";
+#include "GameMap.h";
 
 #define WINDOW_CLASS_NAME L"SampleWindow"
 #define MAIN_WINDOW_TITLE L"04 - Collision"
@@ -54,10 +56,12 @@ Simon *simon;
 CGoomba *goomba;
 FirePots *firepots;
 Map *map;
+Camera* camera;
+GameMap* gameMap;
 
 vector<LPGAMEOBJECT> objects;
 vector<LPGAMEOBJECT> objects2;
-vector<LPGAMEOBJECT> GameMap;
+//vector<LPGAMEOBJECT> GameMap;
 
 class CSampleKeyHander : public CKeyEventHandler
 {
@@ -78,7 +82,7 @@ void CSampleKeyHander::OnKeyDown(int KeyCode)
 		break;
 	case DIK_A: // reset
 		simon->SetState(SIMON_STATE_IDLE);
-		simon->SetLevel(MARIO_LEVEL_BIG);
+		//simon->SetLevel(MARIO_LEVEL_BIG);
 		simon->SetPosition(50.0f, 0.0f);
 		simon->SetSpeed(0, 0);
 		break;
@@ -134,6 +138,9 @@ LRESULT CALLBACK WinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 */
 void LoadResources()
 {
+	gameMap = new GameMap(L"textures\\map\\Level1Entrance.png", ID_TEX_MAP, 40, 0);
+	gameMap->LoadMap("textures\\map\\Level1Entrance.txt");
+
 	CTextures * textures = CTextures::GetInstance();
 	textures->Add(ID_TEX_SIMON, L"textures\\Simon.png", D3DCOLOR_XRGB(0, 128, 128));
 	textures->Add(ID_TEX_MISC, L"textures\\misc.png", D3DCOLOR_XRGB(176, 224, 248));
@@ -307,16 +314,16 @@ void LoadResources()
 	//	goomba->SetState(GOOMBA_STATE_WALKING);
 	//	objects.push_back(goomba);
 	//}
-	int x = 603, n = 0;
-	for (int i = 0; i < 5; i++)
-	{
-		map = new Map();
-		map->AddAnimation(x);
-		map->SetPosition(-65+ i*n,0 );
-		GameMap.push_back(map);
-		x++;
-		n = 31.0f;
-	}
+	//int x = 603, n = 0;
+	//for (int i = 0; i < 5; i++)
+	//{
+	//	map = new Map();
+	//	map->AddAnimation(x);
+	//	map->SetPosition(-65+ i*n,0 );
+	//	GameMap.push_back(map);
+	//	x++;
+	//	n = 31.0f;
+	//}
 }
 
 /*
@@ -340,14 +347,16 @@ void Update(DWORD dt)
 	}
 
 
-	// Update camera to follow mario
+	// Update camera to follow simon
 	float cx, cy;
 	simon->GetPosition(cx, cy);
 
 	cx -= SCREEN_WIDTH / 2;
 	cy -= SCREEN_HEIGHT / 2;
 
-	CGame::GetInstance()->SetCamPos(cx, 0.0f /*cy*/);
+	//CGame::GetInstance()->SetCamPos(cx, 0.0f /*cy*/);
+	camera = Camera::getInstance();
+	camera->setPosition(cx, 0.0f);
 }
 
 /*
@@ -358,6 +367,8 @@ void Render()
 	LPDIRECT3DDEVICE9 d3ddv = game->GetDirect3DDevice();
 	LPDIRECT3DSURFACE9 bb = game->GetBackBuffer();
 	LPD3DXSPRITE spriteHandler = game->GetSpriteHandler();
+
+	camera = Camera::getInstance();
 
 	if (d3ddv->BeginScene())
 	{
@@ -374,16 +385,20 @@ void Render()
 		{
 			objects2[i]->Render();
 		}
-		for (int i = 0; i < GameMap.size(); i++)
-		{
-			GameMap[i]->Render();
-		}
+		//for (int i = 0; i < GameMap.size(); i++)
+		//{
+		//	GameMap[i]->Render();
+		//}
 		spriteHandler->End();
 		d3ddv->EndScene();
+		gameMap->DrawMap(camera);
 	}
 
 	// Display back buffer content to the screen
 	d3ddv->Present(NULL, NULL, NULL, NULL);
+
+	//render map
+	gameMap->DrawMap(camera);
 }
 
 HWND CreateGameWindow(HINSTANCE hInstance, int nCmdShow, int ScreenWidth, int ScreenHeight)
