@@ -31,7 +31,6 @@ o
 
 #include "Simon.h"
 #include "Brick.h"
-#include "Goomba.h"
 #include "FirePots.h"
 #include"BackGround.h"
 
@@ -41,6 +40,8 @@ o
 #define BACKGROUND_COLOR D3DCOLOR_XRGB(0, 0, 0)
 #define SCREEN_WIDTH 500
 #define SCREEN_HEIGHT 210
+#define SCREEN_EDGE_LEFT 0
+#define SCREEN_EDGE_RIGHT 720
 
 #define MAX_FRAME_RATE 120
 
@@ -53,7 +54,6 @@ o
 CGame *game;
 
 Simon *simon;
-CGoomba *goomba;
 FirePots *firepots;
 
 vector<LPGAMEOBJECT> objects;
@@ -78,7 +78,7 @@ void CSampleKeyHander::OnKeyDown(int KeyCode)
 		break;
 	case DIK_A: // reset
 		simon->SetState(SIMON_STATE_IDLE);
-		simon->SetLevel(MARIO_LEVEL_BIG);
+		//simon->SetLevel(MARIO_LEVEL_BIG);		//The fuk iz dis
 		simon->SetPosition(50.0f, 0.0f);
 		simon->SetSpeed(0, 0);
 		break;
@@ -136,13 +136,14 @@ LRESULT CALLBACK WinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 /*
 	Load all game resources
-	In this example: load textures, sprites, animations and mario object
+	In this example: load textures, sprites, animations and simon object
 
 	TO-DO: Improve this function by loading texture,sprite,animation,object from file
 */
 void LoadResources()
 {
-	CTextures * textures = CTextures::GetInstance();
+#pragma region	AddTexture
+	CTextures* textures = CTextures::GetInstance();
 	textures->Add(ID_TEX_SIMON, L"textures\\Simon.png", D3DCOLOR_XRGB(0, 128, 128));
 	textures->Add(ID_TEX_BRICK, L"textures\\brick.png", D3DCOLOR_XRGB(176, 224, 248));
 	textures->Add(ID_TEX_ENEMY, L"textures\\enemies.png", D3DCOLOR_XRGB(3, 26, 110));
@@ -150,6 +151,7 @@ void LoadResources()
 	textures->Add(ID_TEX_ENTRANCESTAGE, L"textures\\Background_entrance.png", D3DCOLOR_XRGB(255, 255, 255));
 
 	textures->Add(ID_TEX_BBOX, L"textures\\bbox.png", D3DCOLOR_XRGB(255, 255, 255));
+#pragma endregion	AddTexture
 
 
 	CSprites * sprites = CSprites::GetInstance();
@@ -167,14 +169,20 @@ void LoadResources()
 	while (infile)
 	{
 		infile >> arr[0] >> arr[1] >> arr[2] >> arr[3] >> arr[4] >> arr[5];
-		if (arr[5] == 0)
+		switch (arr[5])
+		{
+		case 0:
 			idTextures = texSimon;
-		else if (arr[5] == 1)
+			break;
+		case 1:
 			idTextures = texBrick;
-		else if (arr[5] == 2)
+			break;
+		case 2:
 			idTextures = texFirePots;
-		else if (arr[5] == 3)
+			break;
+		default:
 			idTextures = texMap;
+		}
 		sprites->Add(arr[0], arr[1], arr[2], arr[3], arr[4], idTextures);
 	}
 	infile.close();
@@ -186,7 +194,8 @@ void LoadResources()
 
 
 	LPANIMATION ani;
-	int arr2[5]; int time, row, idAni;
+	int arr2[5];
+	int time, row, idAni;
 	infile.open("ReadFile\\Animation.txt");
 	while (infile) {
 		infile >> time >> row >> idAni;
@@ -204,13 +213,6 @@ void LoadResources()
 		ani->Add(i);
 		animations->Add(i, ani);
 	}
-	//ani = new CAnimation(300);		// Goomba walk
-	//ani->Add(30001);
-	//ani->Add(30002);
-	//animations->Add(701, ani);
-	//ani = new CAnimation(1000);		// Goomba dead
-	//ani->Add(30003);
-	//animations->Add(702, ani);
 	ifstream myfile{ "ReadFile\\Entrance.txt" };
 	int mArray[50][50];
 	for (int d = 5; d >= 0; d--) {
@@ -220,7 +222,7 @@ void LoadResources()
 			if (mArray[d][c] != 0)
 			{
 				back->AddAnimation(mArray[d][c]);
-				back->SetPosition(0 + c * 32.0f, 150 - d * 32.0f);
+				back->SetPosition(c * 32.0f, 145 - d * 32.0f);	//hide black tiles on top
 				objects.push_back(back);
 			}
 		}
@@ -229,7 +231,7 @@ void LoadResources()
 
 
 
-
+#pragma region AddAnimation
 	simon = new Simon();
 	simon->AddAnimation(400);		// idle right big
 	simon->AddAnimation(401);		// idle left big
@@ -237,22 +239,24 @@ void LoadResources()
 	simon->AddAnimation(501);		// walk left big
 	simon->AddAnimation(502);		//attack right
 	simon->AddAnimation(503);		//attack left
-	simon->AddAnimation(504);       
+	simon->AddAnimation(504);
 	simon->AddAnimation(505);
 	simon->AddAnimation(599);		// die
 	simon->SetPosition(50.0f, 0);
 	objects.push_back(simon);
-
+#pragma endregion AddAnimation
 
 
 
 	for (int i = 0; i < 51; i++)
 	{
-		CBrick *brick = new CBrick();
+		CBrick* brick = new CBrick();
 		brick->AddAnimation(601);
-		brick->SetPosition(0 + i * 15.0f, 150);
+		brick->SetPosition(0 + i * 15.0f, 145);		//in sync with the background above
 		objects.push_back(brick);
 	}
+
+
 	for (int i = 0; i < 3; i++)
 	{
 		FirePots *firepots = new FirePots();
@@ -260,16 +264,6 @@ void LoadResources()
 		firepots->SetPosition(130 + i * 100.0f, 119);
 		objects2.push_back(firepots);
 	}
-	//// and Goombas 
-	//for (int i = 0; i < 4; i++)
-	//{
-	//	goomba = new CGoomba();
-	//	goomba->AddAnimation(701);
-	//	goomba->AddAnimation(702);
-	//	goomba->SetPosition(200 + i * 60, 135);
-	//	goomba->SetState(GOOMBA_STATE_WALKING);
-	//	objects.push_back(goomba);
-	//}
 
 }
 
@@ -279,6 +273,7 @@ void LoadResources()
 */
 void Update(DWORD dt)
 {
+	game = CGame::GetInstance();
 	// We know that Mario is the first object in the list hence we won't add him into the colliable object list
 	// TO-DO: This is a "dirty" way, need a more organized way 
 
@@ -294,14 +289,24 @@ void Update(DWORD dt)
 	}
 
 
-	// Update camera to follow mario
 	float cx, cy;
 	simon->GetPosition(cx, cy);
+	
+	//Keep Simon in the screen
+	if (cx < SCREEN_EDGE_LEFT)
+	{
+		simon->SetPosition(SCREEN_EDGE_LEFT, cy);
+	}
+	else if (cx > SCREEN_EDGE_RIGHT)
+	{
+		simon->SetPosition(SCREEN_EDGE_RIGHT, cy);
+	}
 
+	// Update camera to follow simon
 	cx -= SCREEN_WIDTH / 2;
 	cy -= SCREEN_HEIGHT / 2;
 	
-	CGame::GetInstance()->SetCamPos(cx, 0.0f /*cy*/);
+	game->SetCamPos(cx, 0.0f /*cy*/);
 }
 
 /*
