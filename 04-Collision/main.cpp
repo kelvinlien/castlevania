@@ -42,6 +42,7 @@ o
 #define SCREEN_HEIGHT 210
 #define SCREEN_EDGE_LEFT 0
 #define SCREEN_EDGE_RIGHT 720
+#define GROUND_HEIGHT 115
 
 #define MAX_FRAME_RATE 120
 
@@ -261,7 +262,7 @@ void LoadResources()
 	{
 		FirePots *firepots = new FirePots();
 		firepots->AddAnimation(602);
-		firepots->SetPosition(130 + i * 100.0f, 119);
+		firepots->SetPosition(130 + i * 100.0f, GROUND_HEIGHT);
 		objects2.push_back(firepots);
 	}
 
