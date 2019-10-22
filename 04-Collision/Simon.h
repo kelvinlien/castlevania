@@ -46,6 +46,7 @@ class Simon : public CGameObject
 	int level;
 	bool IsAttacking; // dung de xet dieu kien attack
 	bool IsSitting;
+	bool IsJumping;
 	int untouchable;
 	DWORD untouchable_start;
 public:
@@ -61,6 +62,5 @@ public:
 	void StartUntouchable() { untouchable = 1; untouchable_start = GetTickCount(); }
 	bool Get_IsAttack() { return IsAttacking; } 
 	bool Get_IsSit() { return IsSitting; }
-
 	virtual void GetBoundingBox(float &left, float &top, float &right, float &bottom);
 };

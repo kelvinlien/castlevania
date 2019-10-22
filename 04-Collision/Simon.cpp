@@ -3,8 +3,7 @@
 
 #include "Simon.h"
 #include "Game.h"
-
-#include "Goomba.h"
+#include"Goomba.h"
 
 void Simon::Update(DWORD dt, vector<LPGAMEOBJECT> *coObjects)
 {
@@ -35,6 +34,7 @@ void Simon::Update(DWORD dt, vector<LPGAMEOBJECT> *coObjects)
 		x += dx;
 		y += dy;
 	}
+	
 	else
 	{
 		float min_tx, min_ty, nx = 0, ny;
@@ -122,8 +122,9 @@ void Simon::Render()
 	if (untouchable) alpha = 128;
 	animations[ani]->Render(x, y, alpha);
 	RenderBoundingBox();
-	if (animations[ani]->GetCurrentFrame() == 2)
+	if (animations[ani]->GetCurrentFrame() == 3)
 		IsAttacking = false;
+	
 }
 
 void Simon::SetState(int state)
@@ -151,10 +152,8 @@ void Simon::SetState(int state)
 		IsAttacking = true;
 		break;
 	case SIMON_STATE_SIT:
-		if (IsSitting)
-			break;
 		vx = 0;
-		y += 5;
+		/*y+=4;*/
 		IsSitting = true;
 		break;
 	case SIMON_STATE_STAND:
@@ -169,6 +168,7 @@ void Simon::SetState(int state)
 
 void Simon::GetBoundingBox(float &left, float &top, float &right, float &bottom)
 {
+
 	left = x;
 	top = y;
 	right = x + SIMON_BIG_BBOX_WIDTH;

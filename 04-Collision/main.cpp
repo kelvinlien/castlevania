@@ -34,13 +34,14 @@ o
 #include "Goomba.h"
 #include "FirePots.h"
 #include"BackGround.h"
+#include"Weapons.h"
 
 #define WINDOW_CLASS_NAME L"SampleWindow"
 #define MAIN_WINDOW_TITLE L"04 - Collision"
 
 #define BACKGROUND_COLOR D3DCOLOR_XRGB(36, 24, 140)
 #define SCREEN_WIDTH 500
-#define SCREEN_HEIGHT 210
+#define SCREEN_HEIGHT 200
 
 #define MAX_FRAME_RATE 120
 
@@ -49,12 +50,14 @@ o
 #define ID_TEX_BRICK 20
 #define ID_TEX_FIREPOTS 30
 #define ID_TEX_ENTRANCESTAGE 40
+#define ID_TEX_WHIP  50
 
 CGame *game;
 
 Simon *simon;
 CGoomba *goomba;
 FirePots *firepots;
+Weapons *whip;
 
 vector<LPGAMEOBJECT> objects;
 vector<LPGAMEOBJECT> objects2;
@@ -84,6 +87,7 @@ void CSampleKeyHander::OnKeyDown(int KeyCode)
 		break;
 	case DIK_Z:
 		simon->SetState(SIMON_STATE_ATTACK);
+		whip->SetState(WHIP_STATE_ATTACK);
 		break;
 	}
 }
@@ -148,8 +152,9 @@ void LoadResources()
 	textures->Add(ID_TEX_ENEMY, L"textures\\enemies.png", D3DCOLOR_XRGB(3, 26, 110));
 	textures->Add(ID_TEX_FIREPOTS, L"textures\\FirePots.png", D3DCOLOR_XRGB(34, 177, 76));
 	textures->Add(ID_TEX_ENTRANCESTAGE, L"textures\\Background_entrance.png", D3DCOLOR_XRGB(36, 24, 140));
+	textures->Add(ID_TEX_WHIP, L"textures\\Whip.png", D3DCOLOR_XRGB(0, 128, 128));
 
-	textures->Add(ID_TEX_BBOX, L"textures\\bbox.png", D3DCOLOR_XRGB(255, 255, 255));
+	textures->Add(ID_TEX_BBOX, L"textures\\bbox.png", D3DCOLOR_XRGB(255, 225, 225));
 
 
 	CSprites * sprites = CSprites::GetInstance();
@@ -159,7 +164,7 @@ void LoadResources()
 	LPDIRECT3DTEXTURE9 texBrick = textures->Get(ID_TEX_BRICK);
 	LPDIRECT3DTEXTURE9 texFirePots = textures->Get(ID_TEX_FIREPOTS);
 	LPDIRECT3DTEXTURE9 texMap = textures->Get(ID_TEX_ENTRANCESTAGE);
-
+	
 	LPDIRECT3DTEXTURE9 idTextures = NULL;
 	ifstream infile;
 	infile.open("ReadFile\\Sprites.txt");
@@ -184,6 +189,16 @@ void LoadResources()
 	//sprites->Add(30002, 25, 14, 41, 29, texEnemy);
 	//sprites->Add(30003, 45, 21, 61, 29, texEnemy); // die sprite
 
+	LPDIRECT3DTEXTURE9 texWhip = textures->Get(ID_TEX_WHIP);
+	sprites->Add(20010, 191, 23, 200, 47, texWhip);
+	sprites->Add(20011, 214, 28, 231, 47, texWhip);
+	sprites->Add(20012, 238, 31, 261, 39, texWhip);
+	sprites->Add(20020, 46, 23, 55, 47, texWhip);
+	sprites->Add(20021, 68, 28, 85, 47, texWhip);
+	sprites->Add(20022, 104, 31, 127, 39, texWhip);
+	sprites->Add(20050, 0, 0, 0, 0, texWhip);
+
+
 
 	LPANIMATION ani;
 	int arr2[5]; int time, row, idAni;
@@ -205,6 +220,26 @@ void LoadResources()
 		ani->Add(i);
 		animations->Add(i, ani);
 	}
+	ani = new CAnimation(100);
+	ani->Add(20050);
+	animations->Add(699,ani);
+
+	ani = new CAnimation(100);		// whip right
+	ani->Add(20010);
+	ani->Add(20011);
+	ani ->Add(20012);
+	ani->Add(20050);
+	animations->Add(700, ani);
+
+	ani = new CAnimation(100);		// whip left
+	ani->Add(20020);
+	ani->Add(20021);
+	ani->Add(20022);
+	ani->Add(20050);
+	animations->Add(701, ani);
+
+
+
 	//ani = new CAnimation(300);		// Goomba walk
 	//ani->Add(30001);
 	//ani->Add(30002);
@@ -244,7 +279,13 @@ void LoadResources()
 	objects.push_back(simon);
 
 
+	whip = new Weapons();
+	whip->AddAnimation(699);
+	whip->AddAnimation(700);
+	whip->AddAnimation(701);
+	objects.push_back(whip);
 
+	
 
 	for (int i = 0; i < 51; i++)
 	{
@@ -260,6 +301,7 @@ void LoadResources()
 		firepots->SetPosition(130 + i * 100.0f, 119);
 		objects2.push_back(firepots);
 	}
+
 	//// and Goombas 
 	//for (int i = 0; i < 4; i++)
 	//{
@@ -281,7 +323,7 @@ void Update(DWORD dt)
 {
 	// We know that Mario is the first object in the list hence we won't add him into the colliable object list
 	// TO-DO: This is a "dirty" way, need a more organized way 
-
+	whip->Get_simon(simon);
 	vector<LPGAMEOBJECT> coObjects;
 	for (int i = 1; i < objects.size(); i++)
 	{
@@ -292,7 +334,6 @@ void Update(DWORD dt)
 	{
 		objects[i]->Update(dt, &coObjects);
 	}
-
 
 	// Update camera to follow mario
 	float cx, cy;
