@@ -41,7 +41,7 @@ o
 #define SCREEN_WIDTH 500
 #define SCREEN_HEIGHT 210
 #define SCREEN_EDGE_LEFT 0
-#define SCREEN_EDGE_RIGHT 720
+#define SCREEN_EDGE_RIGHT 740
 #define GROUND_HEIGHT 115
 
 #define MAX_FRAME_RATE 120
@@ -79,7 +79,6 @@ void CSampleKeyHander::OnKeyDown(int KeyCode)
 		break;
 	case DIK_A: // reset
 		simon->SetState(SIMON_STATE_IDLE);
-		//simon->SetLevel(MARIO_LEVEL_BIG);		//The fuk iz dis
 		simon->SetPosition(50.0f, 0.0f);
 		simon->SetSpeed(0, 0);
 		break;
@@ -307,7 +306,7 @@ void Update(DWORD dt)
 	cx -= SCREEN_WIDTH / 2;
 	cy -= SCREEN_HEIGHT / 2;
 	
-	game->SetCamPos(cx, 0.0f /*cy*/);
+	game->SetCamPos(cx, 0.0f);		//y remains unchanged this map
 }
 
 /*
