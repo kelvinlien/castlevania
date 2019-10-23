@@ -61,7 +61,6 @@ Weapons *whip;
 
 vector<LPGAMEOBJECT> objects;
 vector<LPGAMEOBJECT> objects2;
-vector<LPGAMEOBJECT> objects3;
 class CSampleKeyHander : public CKeyEventHandler
 {
 	virtual void KeyState(BYTE *states);
@@ -263,8 +262,6 @@ void LoadResources()
 	}
 	myfile.close();
 
-
-
 	simon = new Simon();
 	simon->AddAnimation(400);		// idle right big
 	simon->AddAnimation(401);		// idle left big
@@ -278,12 +275,13 @@ void LoadResources()
 	simon->SetPosition(50.0f, 0);
 	objects.push_back(simon);
 
+	
 
 	whip = new Weapons();
 	whip->AddAnimation(699);
 	whip->AddAnimation(700);
 	whip->AddAnimation(701);
-	objects.push_back(whip);
+	objects2.push_back(whip);
 
 	
 
@@ -297,6 +295,7 @@ void LoadResources()
 	for (int i = 0; i < 3; i++)
 	{
 		FirePots *firepots = new FirePots();
+		firepots->AddAnimation(603);
 		firepots->AddAnimation(602);
 		firepots->SetPosition(130 + i * 100.0f, 119);
 		objects2.push_back(firepots);
@@ -325,6 +324,7 @@ void Update(DWORD dt)
 	// TO-DO: This is a "dirty" way, need a more organized way 
 	whip->Get_simon(simon);
 	vector<LPGAMEOBJECT> coObjects;
+	vector<LPGAMEOBJECT> coObjects2;
 	for (int i = 1; i < objects.size(); i++)
 	{
 		coObjects.push_back(objects[i]);
@@ -334,7 +334,15 @@ void Update(DWORD dt)
 	{
 		objects[i]->Update(dt, &coObjects);
 	}
+	for (int i = 1; i < objects2.size(); i++)
+	{
+		coObjects2.push_back(objects2[i]);
+	}
 
+	for (int i = 0; i < objects2.size(); i++)
+	{
+		objects2[i]->Update(dt, &coObjects2);
+	}
 	// Update camera to follow mario
 	float cx, cy;
 	simon->GetPosition(cx, cy);

@@ -1,12 +1,17 @@
 #pragma once
 #include "GameObject.h"
 
-#define BRICK_BBOX_WIDTH  16
-#define BRICK_BBOX_HEIGHT 32
-
+#define FIREPOTS_BBOX_WIDTH  16
+#define FIREPOTS_BBOX_HEIGHT 32
+#define FIREPOTS_STATE_BURN  100
+#define FIREPOTS_STATE_BREAK 200
+#define FIREPOTS_ANI_NOTHING 0
+#define FIREPOTS_ANI_BURN    1
 class FirePots : public CGameObject
 {
+	bool IsBreak;
 public:
 	virtual void Render();
+	void SetState(int stat);
 	virtual void GetBoundingBox(float &l, float &t, float &r, float &b);
 };
