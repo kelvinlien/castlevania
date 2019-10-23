@@ -5,7 +5,7 @@
 //0.1f
 #define MARIO_JUMP_SPEED_Y		0.5f
 #define MARIO_JUMP_DEFLECT_SPEED 0.2f
-#define MARIO_GRAVITY			0.002f
+#define SIMON_GRAVITY			0.002f
 #define MARIO_DIE_DEFLECT_SPEED	 0.5f
 
 #define SIMON_STATE_IDLE			0
@@ -29,9 +29,6 @@
 #define SIMON_ANI_SIT_LEFT			7
 #define SIMON_ANI_DIE				8
 
-#define	MARIO_LEVEL_SMALL	1
-#define	MARIO_LEVEL_BIG		2
-
 #define SIMON_BIG_BBOX_WIDTH  15
 #define SIMON_BIG_BBOX_HEIGHT 27
 
@@ -52,7 +49,6 @@ class Simon : public CGameObject
 public:
 	Simon() : CGameObject()
 	{
-		level = MARIO_LEVEL_BIG;
 		untouchable = 0;
 	}
 	virtual void Update(DWORD dt, vector<LPGAMEOBJECT> *colliable_objects = NULL);

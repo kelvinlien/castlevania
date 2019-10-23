@@ -1,16 +1,33 @@
 #include "FirePots.h"
 
+
+FirePots::FirePots()
+{
+	IsBreak = false;
+	ended = false;
+}
+
+FirePots::~FirePots()
+{
+}
+
 void FirePots::Render()
 {
 	int ani;
-	if (IsBreak)
+	if (!IsBreak)
 	{
-		ani = FIREPOTS_ANI_NOTHING;
-	}
-	else 
 		ani = FIREPOTS_ANI_BURN;
-	animations[ani]->Render(x, y);
-	RenderBoundingBox();
+		animations[ani]->Render(x, y);
+		RenderBoundingBox();
+	}
+	else
+	{
+		float efx = this->x + FIREPOTS_BBOX_WIDTH / 2;
+		float efy = this->y + 7;
+		ef->AddAnimation(901);
+		ef->SetPosition(efx, efy);
+		ef->Render();
+	}
 }
 void FirePots::SetState(int stat)
 {
@@ -28,4 +45,16 @@ void FirePots::GetBoundingBox(float &l, float &t, float &r, float &b)
 	t = y;
 	r = x + FIREPOTS_BBOX_WIDTH;
 	b = y + FIREPOTS_BBOX_HEIGHT;
+}
+
+void FirePots::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
+{
+	if (IsBreak)
+	{
+		if (!ended)
+		{
+			ef->Update(dt, NULL);
+		}
+	}
+	return;
 }

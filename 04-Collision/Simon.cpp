@@ -3,7 +3,6 @@
 
 #include "Simon.h"
 #include "Game.h"
-#include"Goomba.h"
 
 void Simon::Update(DWORD dt, vector<LPGAMEOBJECT> *coObjects)
 {
@@ -11,7 +10,7 @@ void Simon::Update(DWORD dt, vector<LPGAMEOBJECT> *coObjects)
 	CGameObject::Update(dt);
 
 	// Simple fall down
-	vy += MARIO_GRAVITY * dt;
+	vy += SIMON_GRAVITY * dt;
 
 	vector<LPCOLLISIONEVENT> coEvents;
 	vector<LPCOLLISIONEVENT> coEventsResult;
@@ -47,43 +46,6 @@ void Simon::Update(DWORD dt, vector<LPGAMEOBJECT> *coObjects)
 
 		if (nx != 0) vx = 0;
 		if (ny != 0) vy = 0;
-
-		// Collision logic with Goombas
-		for (UINT i = 0; i < coEventsResult.size(); i++)
-		{
-			LPCOLLISIONEVENT e = coEventsResult[i];
-
-			if (dynamic_cast<CGoomba *>(e->obj)) // if e->obj is Goomba 
-			{
-				CGoomba *goomba = dynamic_cast<CGoomba *>(e->obj);
-
-				// jump on top >> kill Goomba and deflect a bit 
-				if (e->ny < 0)
-				{
-					if (goomba->GetState() != GOOMBA_STATE_DIE)
-					{
-						goomba->SetState(GOOMBA_STATE_DIE);
-						vy = -MARIO_JUMP_DEFLECT_SPEED;
-					}
-				}
-				else if (e->nx != 0)
-				{
-					if (untouchable == 0)
-					{
-						if (goomba->GetState() != GOOMBA_STATE_DIE)
-						{
-							/*if (level > MARIO_LEVEL_SMALL)
-							{
-								level = MARIO_LEVEL_SMALL;
-								StartUntouchable();
-							}
-							else */
-							SetState(SIMON_STATE_DIE);
-						}
-					}
-				}
-			}
-		}
 	}
 	// clean up collision events
 	for (UINT i = 0; i < coEvents.size(); i++) delete coEvents[i];

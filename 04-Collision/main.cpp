@@ -31,7 +31,6 @@ o
 
 #include "Simon.h"
 #include "Brick.h"
-#include "Goomba.h"
 #include "FirePots.h"
 #include"BackGround.h"
 #include"Weapons.h"
@@ -46,16 +45,16 @@ o
 #define MAX_FRAME_RATE 120
 
 #define ID_TEX_SIMON 0
-#define ID_TEX_ENEMY 10	
+#define ID_TEX_EFFECT 10	
 #define ID_TEX_BRICK 20
 #define ID_TEX_FIREPOTS 30
 #define ID_TEX_ENTRANCESTAGE 40
 #define ID_TEX_WHIP  50
+#define ID_TEX_ITEM  60
 
 CGame *game;
 
 Simon *simon;
-CGoomba *goomba;
 FirePots *firepots;
 Weapons *whip;
 
@@ -80,7 +79,6 @@ void CSampleKeyHander::OnKeyDown(int KeyCode)
 		break;
 	case DIK_A: // reset
 		simon->SetState(SIMON_STATE_IDLE);
-		simon->SetLevel(MARIO_LEVEL_BIG);
 		simon->SetPosition(50.0f, 0.0f);
 		simon->SetSpeed(0, 0);
 		break;
@@ -148,12 +146,12 @@ void LoadResources()
 	CTextures * textures = CTextures::GetInstance();
 	textures->Add(ID_TEX_SIMON, L"textures\\Simon.png", D3DCOLOR_XRGB(0, 128, 128));
 	textures->Add(ID_TEX_BRICK, L"textures\\brick.png", D3DCOLOR_XRGB(176, 224, 248));
-	textures->Add(ID_TEX_ENEMY, L"textures\\enemies.png", D3DCOLOR_XRGB(3, 26, 110));
+	textures->Add(ID_TEX_EFFECT, L"textures\\Effect.png.png", D3DCOLOR_XRGB(255, 0, 255));
 	textures->Add(ID_TEX_FIREPOTS, L"textures\\FirePots.png", D3DCOLOR_XRGB(34, 177, 76));
 	textures->Add(ID_TEX_ENTRANCESTAGE, L"textures\\Background_entrance.png", D3DCOLOR_XRGB(36, 24, 140));
 	textures->Add(ID_TEX_WHIP, L"textures\\Whip.png", D3DCOLOR_XRGB(0, 128, 128));
-
 	textures->Add(ID_TEX_BBOX, L"textures\\bbox.png", D3DCOLOR_XRGB(255, 225, 225));
+	textures->Add(ID_TEX_ITEM, L"textures\\Item.png", D3DCOLOR_XRGB(255, 225, 225));
 
 
 	CSprites * sprites = CSprites::GetInstance();
@@ -163,6 +161,9 @@ void LoadResources()
 	LPDIRECT3DTEXTURE9 texBrick = textures->Get(ID_TEX_BRICK);
 	LPDIRECT3DTEXTURE9 texFirePots = textures->Get(ID_TEX_FIREPOTS);
 	LPDIRECT3DTEXTURE9 texMap = textures->Get(ID_TEX_ENTRANCESTAGE);
+	LPDIRECT3DTEXTURE9 texWhip = textures->Get(ID_TEX_WHIP);
+	LPDIRECT3DTEXTURE9 texEffect = textures->Get(ID_TEX_EFFECT);
+	LPDIRECT3DTEXTURE9 texItem = textures->Get(ID_TEX_ITEM);
 	
 	LPDIRECT3DTEXTURE9 idTextures = NULL;
 	ifstream infile;
@@ -171,31 +172,40 @@ void LoadResources()
 	while (infile)
 	{
 		infile >> arr[0] >> arr[1] >> arr[2] >> arr[3] >> arr[4] >> arr[5];
-		if (arr[5] == 0)
+		//if (arr[5] == 0)
+		//	idTextures = texSimon;
+		//else if (arr[5] == 1)
+		//	idTextures = texBrick;
+		//else if (arr[5] == 2)
+		//	idTextures = texFirePots;
+		//else if (arr[5] == 3)
+		//	idTextures = texMap;
+		switch (arr[5])
+		{
+		case 0:
 			idTextures = texSimon;
-		else if (arr[5] == 1)
+			break;
+		case 1:
 			idTextures = texBrick;
-		else if (arr[5] == 2)
+			break;
+		case 2:
 			idTextures = texFirePots;
-		else if (arr[5] == 3)
+			break;
+		case 3:
 			idTextures = texMap;
+			break;
+		case 4:
+			idTextures = texWhip;
+			break;
+		case 5:
+			idTextures = texEffect;
+			break;
+		default:
+			idTextures = texItem;
+		}
 		sprites->Add(arr[0], arr[1], arr[2], arr[3], arr[4], idTextures);
 	}
 	infile.close();
-
-	//LPDIRECT3DTEXTURE9 texEnemy = textures->Get(ID_TEX_ENEMY);
-	//sprites->Add(30001, 5, 14, 21, 29, texEnemy);
-	//sprites->Add(30002, 25, 14, 41, 29, texEnemy);
-	//sprites->Add(30003, 45, 21, 61, 29, texEnemy); // die sprite
-
-	LPDIRECT3DTEXTURE9 texWhip = textures->Get(ID_TEX_WHIP);
-	sprites->Add(20010, 191, 23, 200, 47, texWhip);
-	sprites->Add(20011, 214, 28, 231, 47, texWhip);
-	sprites->Add(20012, 238, 31, 261, 39, texWhip);
-	sprites->Add(20020, 46, 23, 55, 47, texWhip);
-	sprites->Add(20021, 68, 28, 85, 47, texWhip);
-	sprites->Add(20022, 104, 31, 127, 39, texWhip);
-	sprites->Add(20050, 0, 0, 0, 0, texWhip);
 
 
 
@@ -236,16 +246,6 @@ void LoadResources()
 	ani->Add(20022);
 	ani->Add(20050);
 	animations->Add(701, ani);
-
-
-
-	//ani = new CAnimation(300);		// Goomba walk
-	//ani->Add(30001);
-	//ani->Add(30002);
-	//animations->Add(701, ani);
-	//ani = new CAnimation(1000);		// Goomba dead
-	//ani->Add(30003);
-	//animations->Add(702, ani);
 	ifstream myfile{ "ReadFile\\Entrance.txt" };
 	int mArray[50][50];
 	for (int d = 5; d >= 0; d--) {
@@ -300,17 +300,6 @@ void LoadResources()
 		firepots->SetPosition(130 + i * 100.0f, 119);
 		objects2.push_back(firepots);
 	}
-
-	//// and Goombas 
-	//for (int i = 0; i < 4; i++)
-	//{
-	//	goomba = new CGoomba();
-	//	goomba->AddAnimation(701);
-	//	goomba->AddAnimation(702);
-	//	goomba->SetPosition(200 + i * 60, 135);
-	//	goomba->SetState(GOOMBA_STATE_WALKING);
-	//	objects.push_back(goomba);
-	//}
 
 }
 

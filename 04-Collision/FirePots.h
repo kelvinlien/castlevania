@@ -1,5 +1,6 @@
 #pragma once
 #include "GameObject.h"
+#include "Effect.h";
 
 #define FIREPOTS_BBOX_WIDTH  16
 #define FIREPOTS_BBOX_HEIGHT 32
@@ -10,8 +11,13 @@
 class FirePots : public CGameObject
 {
 	bool IsBreak;
+	bool ended;
 public:
+	Effect* ef = new Effect();
+	FirePots();
+	~FirePots();
 	virtual void Render();
 	void SetState(int stat);
 	virtual void GetBoundingBox(float &l, float &t, float &r, float &b);
+	void Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects);
 };
