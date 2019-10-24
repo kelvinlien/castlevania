@@ -66,12 +66,13 @@ void Simon::Render()
 			ani = SIMON_ANI_SIT_ATTACK_LEFT;
 
 	}
-	else if (IsSitting || IsJumping)
+	else if (IsSitting)
 	{
 		if (nx > 0)
 			ani = SIMON_ANI_SIT_RIGHT;
 		else
 			ani = SIMON_ANI_SIT_LEFT;
+
 	}
 	else if (IsAttacking)
 	{
@@ -125,7 +126,8 @@ void Simon::SetState(int state)
 		nx = -1;
 		break;
 	case SIMON_STATE_JUMP:
-		vy = -SIMON_JUMP_SPEED_Y;
+		if (vy == 0)
+			vy = -SIMON_JUMP_SPEED_Y;
 		IsJumping = true;
 		break;
 	case SIMON_STATE_IDLE:
@@ -185,5 +187,10 @@ int Simon::getSimonnx()
 void Simon::setSimonnx(int _nx)
 {
 	nx = _nx;
+}
+
+bool Simon::Get_IsJumping()
+{
+	return IsJumping;
 }
 

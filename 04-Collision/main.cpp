@@ -79,7 +79,11 @@ void CSampleKeyHander::OnKeyDown(int KeyCode)
 	switch (KeyCode)
 	{
 	case DIK_SPACE:
-		simon->SetState(SIMON_STATE_JUMP);
+		if (simon->Get_IsSitting()) return;
+		if (simon->Get_IsAttack()) return;
+		if (simon->Get_IsJumping()) return;
+		if (simon->GetState() != SIMON_STATE_JUMP)
+			simon->SetState(SIMON_STATE_JUMP);
 		break;
 	case DIK_A: // reset
 		simon->SetState(SIMON_STATE_IDLE);
@@ -131,7 +135,8 @@ void CSampleKeyHander::KeyState(BYTE *states)
 				simon->setSimonnx(1);
 			}
 		}
-		simon->SetState(SIMON_STATE_WALKING_RIGHT);
+		else
+			simon->SetState(SIMON_STATE_WALKING_RIGHT);
 	}
 	else if (game->IsKeyDown(DIK_LEFT))
 	{
@@ -144,7 +149,10 @@ void CSampleKeyHander::KeyState(BYTE *states)
 				simon->setSimonnx(-1);
 			}
 		}
-		simon->SetState(SIMON_STATE_WALKING_LEFT);
+		else
+		{
+			simon->SetState(SIMON_STATE_WALKING_LEFT);
+		}
 	}
 	else if(game->IsKeyDown(DIK_DOWN))
 		simon->SetState(SIMON_STATE_SIT_IDLE);
@@ -330,6 +338,7 @@ void LoadResources()
 		firepots->AddAnimation(603);
 		firepots->AddAnimation(602);
 		firepots->SetPosition(130 + i * 100.0f, GROUND_HEIGHT);
+		firepots->setID(i);
 		objects2.push_back(firepots);
 	}
 
@@ -369,8 +378,14 @@ void Update(DWORD dt)
 	for (int i = 0; i < objects.size(); i++)
 	{
 		objects[i]->Update(dt, &coObjects);
-		if (dynamic_cast<FirePots*>(objects.at(i)))//is simon
+		if (dynamic_cast<FirePots*>(objects.at(i)))//is firepots
 		{
+			FirePots* fp = dynamic_cast<FirePots*>(objects.at(i));
+			if (fp->GetState() == FIREPOTS_STATE_BREAK)
+			{
+				int id = fp->getID();
+				effect[id]->Update(dt);
+			}
 
 		}
 	}
@@ -424,6 +439,16 @@ void Render()
 		for (int i = 0; i < objects.size(); i++)
 		{
 			objects[i]->Render();
+			if (dynamic_cast<FirePots*>(objects.at(i)))//is firepots
+			{
+				FirePots* fp = dynamic_cast<FirePots*>(objects.at(i));
+				if (fp->GetState() == FIREPOTS_STATE_BREAK)
+				{
+					int id = fp->getID();
+					effect[id]->Render();
+				}
+
+			}
 		}
 		for (int i = 0; i < objects2.size(); i++)
 		{

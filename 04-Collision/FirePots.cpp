@@ -22,13 +22,7 @@ void FirePots::Render()
 	}
 	else
 	{
-		//if (!ended)
-		//{
-		//	this->AddAnimation(1001);
-		//	animations[2]->Render(efx, efy);
-		//	this->AddAnimation(803);
-		//	animations[3]->Render(efx - 5, efy + 7);
-		//}
+		return;
 	}
 }
 void FirePots::SetState(int stat)
@@ -57,4 +51,14 @@ void FirePots::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 bool FirePots::isBreak()
 {
 	return IsBreak;
+}
+
+void FirePots::setID(int ID)
+{
+	id = ID;
+}
+
+int FirePots::getID()
+{
+	return id;
 }

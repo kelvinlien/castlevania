@@ -14,6 +14,7 @@ class FirePots : public CGameObject
 	bool IsBreak;
 	//DWORD timer = 0;
 	//bool ended = false;
+	int id;
 public:
 	FirePots();
 	~FirePots();
@@ -22,4 +23,7 @@ public:
 	virtual void GetBoundingBox(float &l, float &t, float &r, float &b);
 	void Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects);
 	bool isBreak();
+	void setID(int ID);
+	int getID();
+	
 };
