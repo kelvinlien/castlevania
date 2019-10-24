@@ -54,9 +54,19 @@ void Simon::Update(DWORD dt, vector<LPGAMEOBJECT> *coObjects)
 void Simon::Render()
 {
 	int ani;
+	int lastFrame = 0;
 	if (state == SIMON_STATE_DIE)
 		ani = SIMON_ANI_DIE;
-	if (IsSitting)
+	if (IsAttacking && IsSitting)
+	{
+		lastFrame = 2;
+		if (nx > 0)
+			ani = SIMON_ANI_SIT_ATTACK_RIGHT;
+		else
+			ani = SIMON_ANI_SIT_ATTACK_LEFT;
+
+	}
+	else if (IsSitting || IsJumping)
 	{
 		if (nx > 0)
 			ani = SIMON_ANI_SIT_RIGHT;
@@ -65,6 +75,7 @@ void Simon::Render()
 	}
 	else if (IsAttacking)
 	{
+		lastFrame = 2;
 		if (nx > 0)
 			ani = SIMON_ANI_ATTACK_RIGHT;
 		else
@@ -77,15 +88,25 @@ void Simon::Render()
 			else ani = SIMON_ANI_BIG_IDLE_LEFT;
 		}
 		else if (vx > 0)
+		{
 			ani = SIMON_ANI_BIG_WALKING_RIGHT;
+			lastFrame = 2;
+		}
 		else
+		{
 			ani = SIMON_ANI_BIG_WALKING_LEFT;
+			lastFrame = 2;
+		}
 	int alpha = 255;
 	if (untouchable) alpha = 128;
 	animations[ani]->Render(x, y, alpha);
 	RenderBoundingBox();
-	if (animations[ani]->GetCurrentFrame() == 3)
+	if (animations[ani]->GetCurrentFrame() == lastFrame)
+	{
 		IsAttacking = false;
+		IsSitting = false;
+		IsJumping = false;
+	}
 	
 }
 
@@ -96,15 +117,16 @@ void Simon::SetState(int state)
 	switch (state)
 	{
 	case SIMON_STATE_WALKING_RIGHT:
-		vx = MARIO_WALKING_SPEED;
+		vx = SIMON_WALKING_SPEED;
 		nx = 1;
 		break;
 	case SIMON_STATE_WALKING_LEFT:
-		vx = -MARIO_WALKING_SPEED;
+		vx = -SIMON_WALKING_SPEED;
 		nx = -1;
 		break;
 	case SIMON_STATE_JUMP:
-		vy = -MARIO_JUMP_SPEED_Y;
+		vy = -SIMON_JUMP_SPEED_Y;
+		IsJumping = true;
 		break;
 	case SIMON_STATE_IDLE:
 		vx = 0;
@@ -113,17 +135,30 @@ void Simon::SetState(int state)
 		vx = 0;
 		IsAttacking = true;
 		break;
-	case SIMON_STATE_SIT:
+	case SIMON_STATE_SIT_IDLE:
 		vx = 0;
 		/*y+=4;*/
 		IsSitting = true;
 		break;
+	case SIMON_STATE_SIT_ATTACK_LEFT:
+		vx = 0;
+		nx = -1;
+		IsSitting = true;
+		IsAttacking = true;
+		break;
+	case SIMON_STATE_SIT_ATTACK_RIGHT:
+		vx = 0;
+		nx = 1;
+		IsSitting = true;
+		IsAttacking = true;
+		break;
 	case SIMON_STATE_STAND:
 		y -= 5;
 		IsSitting = false;
+		IsJumping = false;
 		break;
 	case SIMON_STATE_DIE:
-		vy = -MARIO_DIE_DEFLECT_SPEED;
+		vy = -SIMON_DIE_DEFLECT_SPEED;
 		break;
 	}
 }
@@ -140,5 +175,15 @@ void Simon::GetBoundingBox(float &left, float &top, float &right, float &bottom)
 		bottom -= 5;
 	}
 
+}
+
+int Simon::getSimonnx()
+{
+	return nx;
+}
+
+void Simon::setSimonnx(int _nx)
+{
+	nx = _nx;
 }
 

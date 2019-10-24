@@ -29,6 +29,7 @@ void Effect::Render()
 {
 	if (!ended)
 	{
+		this->AddAnimation(1001);
 		animations[0]->Render(x, y);
 		RenderBoundingBox();
 	}

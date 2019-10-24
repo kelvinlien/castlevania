@@ -41,6 +41,9 @@ o
 #define BACKGROUND_COLOR D3DCOLOR_XRGB(36, 24, 140)
 #define SCREEN_WIDTH 500
 #define SCREEN_HEIGHT 200
+#define GROUND_HEIGHT 115
+#define SCREEN_EDGE_LEFT 0
+#define SCREEN_EDGE_RIGHT 740
 
 #define MAX_FRAME_RATE 120
 
@@ -60,6 +63,7 @@ Weapons *whip;
 
 vector<LPGAMEOBJECT> objects;
 vector<LPGAMEOBJECT> objects2;
+vector<LPGAMEOBJECT> effect;
 class CSampleKeyHander : public CKeyEventHandler
 {
 	virtual void KeyState(BYTE *states);
@@ -83,7 +87,19 @@ void CSampleKeyHander::OnKeyDown(int KeyCode)
 		simon->SetSpeed(0, 0);
 		break;
 	case DIK_Z:
-		simon->SetState(SIMON_STATE_ATTACK);
+		if (simon->GetState() == SIMON_STATE_SIT_IDLE)
+		{
+			if (simon->getSimonnx() == -1)
+			{
+				simon->SetState(SIMON_STATE_SIT_ATTACK_LEFT);
+			}
+			else
+			{
+				simon->SetState(SIMON_STATE_SIT_ATTACK_RIGHT);
+			}
+		}
+		else
+			simon->SetState(SIMON_STATE_ATTACK);
 		whip->SetState(WHIP_STATE_ATTACK);
 		break;
 	}
@@ -102,22 +118,36 @@ void CSampleKeyHander::OnKeyUp(int KeyCode)
 
 void CSampleKeyHander::KeyState(BYTE *states)
 {
-	// disable control key when Mario die 
+	// disable control key when Simon die 
 	if (simon->GetState() == SIMON_STATE_DIE) return;
 	if (game->IsKeyDown(DIK_RIGHT))
 	{
-		if (simon->Get_IsAttack()||simon->Get_IsSit())
-			return;
+		//if (simon->Get_IsAttack()||simon->Get_IsSit())
+		//	return;
+		if (simon->GetState() == SIMON_STATE_SIT_IDLE)
+		{
+			if (simon->getSimonnx() == -1)
+			{
+				simon->setSimonnx(1);
+			}
+		}
 		simon->SetState(SIMON_STATE_WALKING_RIGHT);
 	}
 	else if (game->IsKeyDown(DIK_LEFT))
 	{
-		if (simon->Get_IsAttack()||simon->Get_IsSit())
-			return;
+		//if (simon->Get_IsAttack() || simon->Get_IsSit())
+		//	return;
+		if (simon->GetState() == SIMON_STATE_SIT_IDLE)
+		{
+			if (simon->getSimonnx() == 1)
+			{
+				simon->setSimonnx(-1);
+			}
+		}
 		simon->SetState(SIMON_STATE_WALKING_LEFT);
 	}
 	else if(game->IsKeyDown(DIK_DOWN))
-		simon->SetState(SIMON_STATE_SIT);
+		simon->SetState(SIMON_STATE_SIT_IDLE);
 	else
 		simon->SetState(SIMON_STATE_IDLE);
 }
@@ -146,7 +176,7 @@ void LoadResources()
 	CTextures * textures = CTextures::GetInstance();
 	textures->Add(ID_TEX_SIMON, L"textures\\Simon.png", D3DCOLOR_XRGB(0, 128, 128));
 	textures->Add(ID_TEX_BRICK, L"textures\\brick.png", D3DCOLOR_XRGB(176, 224, 248));
-	textures->Add(ID_TEX_EFFECT, L"textures\\Effect.png.png", D3DCOLOR_XRGB(255, 0, 255));
+	textures->Add(ID_TEX_EFFECT, L"textures\\Effect1.png.png", D3DCOLOR_XRGB(34, 177, 76));
 	textures->Add(ID_TEX_FIREPOTS, L"textures\\FirePots.png", D3DCOLOR_XRGB(34, 177, 76));
 	textures->Add(ID_TEX_ENTRANCESTAGE, L"textures\\Background_entrance.png", D3DCOLOR_XRGB(36, 24, 140));
 	textures->Add(ID_TEX_WHIP, L"textures\\Whip.png", D3DCOLOR_XRGB(0, 128, 128));
@@ -272,6 +302,8 @@ void LoadResources()
 	simon->AddAnimation(504);       
 	simon->AddAnimation(505);
 	simon->AddAnimation(599);		// die
+	simon->AddAnimation(510);		//sit attack left
+	simon->AddAnimation(511);		//sit attack right
 	simon->SetPosition(50.0f, 0);
 	objects.push_back(simon);
 
@@ -292,15 +324,30 @@ void LoadResources()
 		brick->SetPosition(0 + i * 15.0f, 150);
 		objects.push_back(brick);
 	}
-	for (int i = 0; i < 3; i++)
+	for (int i = 0; i < 4; i++)
 	{
 		FirePots *firepots = new FirePots();
 		firepots->AddAnimation(603);
 		firepots->AddAnimation(602);
-		firepots->SetPosition(130 + i * 100.0f, 119);
+		firepots->SetPosition(130 + i * 100.0f, GROUND_HEIGHT);
 		objects2.push_back(firepots);
 	}
 
+
+	for (int i = 0; i < 4; i++)
+	{
+		Effect* ef = new Effect();
+		ef->AddAnimation(1001);
+		ef->SetPosition(130 + i * 100.0f, 125);
+		effect.push_back(ef);
+	}
+
+	for (int i = 0; i < 4; i++)
+	{
+		Heart* it = new Heart(true);
+		it->SetPosition(130 + i * 100.0f, 125);
+		objects.push_back(it);
+	}
 }
 
 /*
@@ -322,6 +369,10 @@ void Update(DWORD dt)
 	for (int i = 0; i < objects.size(); i++)
 	{
 		objects[i]->Update(dt, &coObjects);
+		if (dynamic_cast<FirePots*>(objects.at(i)))//is simon
+		{
+
+		}
 	}
 	for (int i = 1; i < objects2.size(); i++)
 	{
@@ -332,10 +383,21 @@ void Update(DWORD dt)
 	{
 		objects2[i]->Update(dt, &coObjects2);
 	}
-	// Update camera to follow mario
+
 	float cx, cy;
 	simon->GetPosition(cx, cy);
 
+	//keep Simon inside the screen
+	if (cx < SCREEN_EDGE_LEFT)
+	{
+		simon->SetPosition(SCREEN_EDGE_LEFT, cy);
+	}
+	else if (cx > SCREEN_EDGE_RIGHT)
+	{
+		simon->SetPosition(SCREEN_EDGE_RIGHT, cy);
+	}
+
+	// Update camera to follow simon
 	cx -= SCREEN_WIDTH / 2;
 	cy -= SCREEN_HEIGHT / 2;
 	
@@ -366,6 +428,10 @@ void Render()
 		for (int i = 0; i < objects2.size(); i++)
 		{
 			objects2[i]->Render();
+		}
+		for (int i = 0; i < effect.size(); i++)
+		{
+			effect[i]->Render();
 		}
 		spriteHandler->End();
 		d3ddv->EndScene();

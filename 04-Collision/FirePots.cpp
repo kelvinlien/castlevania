@@ -4,7 +4,7 @@
 FirePots::FirePots()
 {
 	IsBreak = false;
-	ended = false;
+
 }
 
 FirePots::~FirePots()
@@ -22,11 +22,13 @@ void FirePots::Render()
 	}
 	else
 	{
-		float efx = this->x + FIREPOTS_BBOX_WIDTH / 2;
-		float efy = this->y + 7;
-		ef->AddAnimation(901);
-		ef->SetPosition(efx, efy);
-		ef->Render();
+		//if (!ended)
+		//{
+		//	this->AddAnimation(1001);
+		//	animations[2]->Render(efx, efy);
+		//	this->AddAnimation(803);
+		//	animations[3]->Render(efx - 5, efy + 7);
+		//}
 	}
 }
 void FirePots::SetState(int stat)
@@ -49,12 +51,10 @@ void FirePots::GetBoundingBox(float &l, float &t, float &r, float &b)
 
 void FirePots::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 {
-	if (IsBreak)
-	{
-		if (!ended)
-		{
-			ef->Update(dt, NULL);
-		}
-	}
 	return;
+}
+
+bool FirePots::isBreak()
+{
+	return IsBreak;
 }
