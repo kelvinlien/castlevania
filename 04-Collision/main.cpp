@@ -106,6 +106,9 @@ void CSampleKeyHander::OnKeyDown(int KeyCode)
 			simon->SetState(SIMON_STATE_ATTACK);
 		whip->SetState(WHIP_STATE_ATTACK);
 		break;
+	case DIK_DOWN:
+		simon->SetState(SIMON_STATE_SIT_IDLE);
+		break;
 	}
 }
 
@@ -267,23 +270,6 @@ void LoadResources()
 		ani->Add(i);
 		animations->Add(i, ani);
 	}
-	ani = new CAnimation(100);
-	ani->Add(20050);
-	animations->Add(699,ani);
-
-	ani = new CAnimation(100);		// whip right
-	ani->Add(20010);
-	ani->Add(20011);
-	ani ->Add(20012);
-	ani->Add(20050);
-	animations->Add(700, ani);
-
-	ani = new CAnimation(100);		// whip left
-	ani->Add(20020);
-	ani->Add(20021);
-	ani->Add(20022);
-	ani->Add(20050);
-	animations->Add(701, ani);
 	ifstream myfile{ "ReadFile\\Entrance.txt" };
 	int mArray[50][50];
 	for (int d = 5; d >= 0; d--) {

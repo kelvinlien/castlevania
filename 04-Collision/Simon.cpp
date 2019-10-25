@@ -66,8 +66,9 @@ void Simon::Render()
 			ani = SIMON_ANI_SIT_ATTACK_LEFT;
 
 	}
-	else if (IsSitting)
+	else if (IsSitting || (IsJumping && vy != 0))
 	{
+		lastFrame = 1;
 		if (nx > 0)
 			ani = SIMON_ANI_SIT_RIGHT;
 		else
@@ -105,9 +106,8 @@ void Simon::Render()
 	if (animations[ani]->GetCurrentFrame() == lastFrame)
 	{
 		IsAttacking = false;
-		IsSitting = false;
-		IsJumping = false;
 	}
+
 	
 }
 
@@ -127,11 +127,14 @@ void Simon::SetState(int state)
 		break;
 	case SIMON_STATE_JUMP:
 		if (vy == 0)
+		{
 			vy = -SIMON_JUMP_SPEED_Y;
-		IsJumping = true;
+			IsJumping = true;
+		}
 		break;
 	case SIMON_STATE_IDLE:
 		vx = 0;
+		IsJumping = false;
 		break;
 	case SIMON_STATE_ATTACK:
 		vx = 0;
@@ -141,6 +144,7 @@ void Simon::SetState(int state)
 		vx = 0;
 		/*y+=4;*/
 		IsSitting = true;
+		IsJumping = false;
 		break;
 	case SIMON_STATE_SIT_ATTACK_LEFT:
 		vx = 0;
