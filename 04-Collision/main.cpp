@@ -109,6 +109,9 @@ void CSampleKeyHander::OnKeyDown(int KeyCode)
 	case DIK_DOWN:
 		simon->SetState(SIMON_STATE_SIT_IDLE);
 		break;
+	case DIK_Q:
+		whip->setLevel();
+		break;
 	}
 }
 
@@ -304,9 +307,13 @@ void LoadResources()
 	
 
 	whip = new Weapons();
-	whip->AddAnimation(699);
-	whip->AddAnimation(700);
-	whip->AddAnimation(701);
+	whip->AddAnimation(699);		//do nothing
+	whip->AddAnimation(700);		//lv1 whip right
+	whip->AddAnimation(701);		//lv1 whip left
+	whip->AddAnimation(710);		//lv2 whip right
+	whip->AddAnimation(711);		//lv2 whip left
+	whip->AddAnimation(720);		//lv3 whip right
+	whip->AddAnimation(721);		//lv3 whip left
 	objects2.push_back(whip);
 
 	
