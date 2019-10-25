@@ -1,4 +1,4 @@
-#include <algorithm>
+﻿#include <algorithm>
 #include "debug.h"
 
 #include "Simon.h"
@@ -66,7 +66,7 @@ void Simon::Render()
 			ani = SIMON_ANI_SIT_ATTACK_LEFT;
 
 	}
-	else if (IsSitting || (IsJumping && vy != 0))
+	else if (IsSitting )
 	{
 		lastFrame = 1;
 		if (nx > 0)
@@ -99,13 +99,21 @@ void Simon::Render()
 			ani = SIMON_ANI_BIG_WALKING_LEFT;
 			lastFrame = 2;
 		}
+
+
 	int alpha = 255;
 	if (untouchable) alpha = 128;
 	animations[ani]->Render(x, y, alpha);
 	RenderBoundingBox();
 	if (animations[ani]->GetCurrentFrame() == lastFrame)
 	{
-		IsAttacking = false;
+		if (IsAttacking)
+			IsAttacking = false;
+		if (IsSitting) {
+			IsSitting = false;
+		}
+		if (IsJumping)
+			IsJumping = false;
 	}
 
 	
@@ -126,11 +134,10 @@ void Simon::SetState(int state)
 		nx = -1;
 		break;
 	case SIMON_STATE_JUMP:
-		if (vy == 0)
-		{
-			vy = -SIMON_JUMP_SPEED_Y;
-			IsJumping = true;
-		}
+		if (IsJumping)
+			break;
+		IsJumping = true;
+		vy = -SIMON_JUMP_SPEED_Y;
 		break;
 	case SIMON_STATE_IDLE:
 		vx = 0;

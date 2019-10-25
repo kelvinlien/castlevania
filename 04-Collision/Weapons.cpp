@@ -52,7 +52,7 @@ void Weapons::Update(DWORD time,vector<LPGAMEOBJECT>*coObjects)
 		}
 		else if (animations[ani_left]->GetCurrentFrame() == 1)
 		{
-			this->x = Simon_clone->x + 11.2f;
+			this->x = Simon_clone->x + 14.5f;
 			this->y = Simon_clone->y;
 		}
 		else if (animations[ani_left]->GetCurrentFrame() == 2)
