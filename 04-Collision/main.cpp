@@ -46,7 +46,7 @@ o
 #define SCREEN_EDGE_LEFT 0
 #define SCREEN_EDGE_RIGHT 740
 
-#define MAX_FRAME_RATE 120
+#define MAX_FRAME_RATE 12000
 
 #define ID_TEX_SIMON 0
 #define ID_TEX_EFFECT 10	
@@ -81,7 +81,11 @@ void CSampleKeyHander::OnKeyDown(int KeyCode)
 	switch (KeyCode)
 	{
 	case DIK_SPACE:
-		simon->SetState(SIMON_STATE_JUMP);
+		if (simon->Get_IsSitting()) return;
+		if (simon->Get_IsAttack()) return;
+		if (simon->Get_IsJumping()) return;
+		if (simon->GetState() != SIMON_STATE_JUMP)
+			simon->SetState(SIMON_STATE_JUMP);
 		break;
 	case DIK_A: // reset
 		simon->SetState(SIMON_STATE_IDLE);
@@ -113,6 +117,12 @@ void CSampleKeyHander::OnKeyDown(int KeyCode)
 			simon->SetState(SIMON_STATE_ATTACK);
 		whip->SetState(WHIP_STATE_ATTACK);
 		break;
+	case DIK_DOWN:
+		simon->SetState(SIMON_STATE_SIT_IDLE);
+		break;
+	case DIK_Q:
+		whip->setLevel();
+		break;
 	}
 }
 
@@ -142,7 +152,8 @@ void CSampleKeyHander::KeyState(BYTE *states)
 				simon->setSimonnx(1);
 			}
 		}
-		simon->SetState(SIMON_STATE_WALKING_RIGHT);
+		else
+			simon->SetState(SIMON_STATE_WALKING_RIGHT);
 	}
 	else if (game->IsKeyDown(DIK_LEFT))
 	{
@@ -155,7 +166,10 @@ void CSampleKeyHander::KeyState(BYTE *states)
 				simon->setSimonnx(-1);
 			}
 		}
-		simon->SetState(SIMON_STATE_WALKING_LEFT);
+		else
+		{
+			simon->SetState(SIMON_STATE_WALKING_LEFT);
+		}
 	}
 	else if(game->IsKeyDown(DIK_DOWN))
 		simon->SetState(SIMON_STATE_SIT_IDLE);
@@ -261,23 +275,6 @@ void LoadResources()
 		ani->Add(i);
 		animations->Add(i, ani);
 	}
-	ani = new CAnimation(100); //whip nothing
-	ani->Add(20050);
-	animations->Add(699,ani);
-
-	ani = new CAnimation(100);		// whip right
-	ani->Add(20010);
-	ani->Add(20011);
-	ani ->Add(20012);
-	ani->Add(20050);
-	animations->Add(700, ani);
-
-	ani = new CAnimation(100);		// whip left
-	ani->Add(20020);
-	ani->Add(20021);
-	ani->Add(20022);
-	ani->Add(20050);
-	animations->Add(701, ani);
 	ifstream myfile{ "ReadFile\\Entrance.txt" };
 	int mArray[50][50];
 	for (int d = 5; d >= 0; d--) {
@@ -311,10 +308,15 @@ void LoadResources()
 
 	
 
-	whip = new Weapon();
-	whip->AddAnimation(699);
-	whip->AddAnimation(700);
-	whip->AddAnimation(701);
+
+	whip = new Weapons();
+	whip->AddAnimation(699);		//do nothing
+	whip->AddAnimation(700);		//lv1 whip right
+	whip->AddAnimation(701);		//lv1 whip left
+	whip->AddAnimation(710);		//lv2 whip right
+	whip->AddAnimation(711);		//lv2 whip left
+	whip->AddAnimation(720);		//lv3 whip right
+	whip->AddAnimation(721);		//lv3 whip left
 	objects2.push_back(whip);
 
 	dagger = new Dagger();
@@ -334,6 +336,7 @@ void LoadResources()
 		FirePots *firepots = new FirePots();
 		firepots->AddAnimation(603);
 		firepots->AddAnimation(602);
+		firepots->setID(i);
 		firepots->SetPosition(130 + i * 100.0f, GROUND_HEIGHT+5.5f);
 		objects2.push_back(firepots);
 	}
@@ -374,6 +377,16 @@ void Update(DWORD dt)
 	for (int i = 0; i < objects.size(); i++)
 	{
 		objects[i]->Update(dt, &coObjects);
+		if (dynamic_cast<FirePots*>(objects.at(i)))//is firepots
+		{
+			FirePots* fp = dynamic_cast<FirePots*>(objects.at(i));
+			if (fp->GetState() == FIREPOTS_STATE_BREAK)
+			{
+				int id = fp->getID();
+				effect[id]->Update(dt);
+			}
+
+		}
 	}
 	for (int i = 1; i < objects2.size(); i++)
 	{
@@ -423,6 +436,16 @@ void Render()
 		for (int i = 0; i < objects.size(); i++)
 		{
 			objects[i]->Render();
+			if (dynamic_cast<FirePots*>(objects.at(i)))//is firepots
+			{
+				FirePots* fp = dynamic_cast<FirePots*>(objects.at(i));
+				if (fp->GetState() == FIREPOTS_STATE_BREAK)
+				{
+					int id = fp->getID();
+					effect[id]->Render();
+				}
+
+			}
 		}
 		for (int i = 0; i < objects2.size(); i++)
 		{

@@ -1,4 +1,4 @@
-#include <algorithm>
+﻿#include <algorithm>
 #include "debug.h"
 
 #include "Simon.h"
@@ -66,12 +66,14 @@ void Simon::Render()
 			ani = SIMON_ANI_SIT_ATTACK_LEFT;
 
 	}
-	else if (IsSitting || IsJumping)
+	else if (IsSitting )
 	{
+		lastFrame = 1;
 		if (nx > 0)
 			ani = SIMON_ANI_SIT_RIGHT;
 		else
 			ani = SIMON_ANI_SIT_LEFT;
+
 	}
 	else if (IsAttacking)
 	{
@@ -97,16 +99,23 @@ void Simon::Render()
 			ani = SIMON_ANI_BIG_WALKING_LEFT;
 			lastFrame = 2;
 		}
+
+
 	int alpha = 255;
 	if (untouchable) alpha = 128;
 	animations[ani]->Render(x, y, alpha);
 	RenderBoundingBox();
 	if (animations[ani]->GetCurrentFrame() == lastFrame)
 	{
-		IsAttacking = false;
-		/*IsSitting = false;*/
-		IsJumping = false;
+		if (IsAttacking)
+			IsAttacking = false;
+		if (IsSitting) {
+			IsSitting = false;
+		}
+		if (IsJumping)
+			IsJumping = false;
 	}
+
 	
 }
 
@@ -131,11 +140,12 @@ void Simon::SetState(int state)
 	case SIMON_STATE_JUMP:
 		if (IsJumping)
 			break;
-		vy = -SIMON_JUMP_SPEED_Y;
 		IsJumping = true;
+		vy = -SIMON_JUMP_SPEED_Y;
 		break;
 	case SIMON_STATE_IDLE:
 		vx = 0;
+		IsJumping = false;
 		break;
 	case SIMON_STATE_ATTACK:
 		vx = 0;
@@ -145,6 +155,7 @@ void Simon::SetState(int state)
 		vx = 0;
 		/*y+=4;*/
 		IsSitting = true;
+		IsJumping = false;
 		break;
 	case SIMON_STATE_SIT_ATTACK_LEFT:
 		vx = 0;
@@ -191,5 +202,10 @@ int Simon::getSimonnx()
 void Simon::setSimonnx(int _nx)
 {
 	nx = _nx;
+}
+
+bool Simon::Get_IsJumping()
+{
+	return IsJumping;
 }
 

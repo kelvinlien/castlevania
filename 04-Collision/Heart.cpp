@@ -21,3 +21,13 @@ Heart::Heart(bool isBigHeart)
 Heart::~Heart()
 {
 }
+
+void Heart::setID(int ID)
+{
+	id = ID;
+}
+
+int Heart::getID()
+{
+	return id;
+}

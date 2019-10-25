@@ -3,9 +3,9 @@
 
 #define SIMON_WALKING_SPEED		0.1f 
 //0.1f
-#define SIMON_JUMP_SPEED_Y		0.5f
+#define SIMON_JUMP_SPEED_Y		0.315f
 #define SIMON_JUMP_DEFLECT_SPEED 0.2f
-#define SIMON_GRAVITY			0.002f
+#define SIMON_GRAVITY			0.00135f
 #define SIMON_DIE_DEFLECT_SPEED	 0.5f
 
 #define SIMON_STATE_IDLE			0
@@ -62,10 +62,11 @@ public:
 	void SetLevel(int l) { level = l; }
 	void StartUntouchable() { untouchable = 1; untouchable_start = GetTickCount(); }
 	bool Get_IsAttack() { return IsAttacking; } 
-	bool Get_IsSit() { return IsSitting; }
+	bool Get_IsSitting() { return IsSitting; }
 	virtual void GetBoundingBox(float &left, float &top, float &right, float &bottom);
 	int getSimonnx();
 	int getDagger() { return DaggerCount; }
 	void SetDagger(int n) { DaggerCount = n; }
 	void setSimonnx(int _nx);
+	bool Get_IsJumping();
 };
