@@ -48,6 +48,7 @@ class Simon : public CGameObject
 	bool IsAttacking; // dung de xet dieu kien attack
 	bool IsSitting;
 	bool IsJumping;
+	int DaggerCount = 4;
 	int untouchable;
 	DWORD untouchable_start;
 public:
@@ -64,6 +65,8 @@ public:
 	bool Get_IsSitting() { return IsSitting; }
 	virtual void GetBoundingBox(float &left, float &top, float &right, float &bottom);
 	int getSimonnx();
+	int getDagger() { return DaggerCount; }
+	void SetDagger(int n) { DaggerCount = n; }
 	void setSimonnx(int _nx);
 	bool Get_IsJumping();
 };

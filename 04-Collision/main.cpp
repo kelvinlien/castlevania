@@ -34,6 +34,7 @@ o
 #include "FirePots.h"
 #include"BackGround.h"
 #include"Weapons.h"
+#include"dagger.h"
 
 #define WINDOW_CLASS_NAME L"SampleWindow"
 #define MAIN_WINDOW_TITLE L"04 - Collision"
@@ -59,7 +60,8 @@ CGame *game;
 
 Simon *simon;
 FirePots *firepots;
-Weapons *whip;
+Weapon *whip;
+Dagger *dagger;
 
 vector<LPGAMEOBJECT> objects;
 vector<LPGAMEOBJECT> objects2;
@@ -89,6 +91,15 @@ void CSampleKeyHander::OnKeyDown(int KeyCode)
 		simon->SetState(SIMON_STATE_IDLE);
 		simon->SetPosition(50.0f, 0.0f);
 		simon->SetSpeed(0, 0);
+		break;
+	case DIK_F:
+		if (simon->getDagger() > 0)
+		{
+			dagger->SetState(DAGGER_STATE_NORMAL);
+			dagger->SetSpeed(0.5f, 0);
+			dagger->Get_simon(simon);
+			simon->SetDagger(simon->getDagger() - 1);
+		}
 		break;
 	case DIK_Z:
 		if (simon->GetState() == SIMON_STATE_SIT_IDLE)
@@ -195,7 +206,7 @@ void LoadResources()
 	textures->Add(ID_TEX_ENTRANCESTAGE, L"textures\\Background_entrance.png", D3DCOLOR_XRGB(36, 24, 140));
 	textures->Add(ID_TEX_WHIP, L"textures\\Whip.png", D3DCOLOR_XRGB(0, 128, 128));
 	textures->Add(ID_TEX_BBOX, L"textures\\bbox.png", D3DCOLOR_XRGB(255, 225, 225));
-	textures->Add(ID_TEX_ITEM, L"textures\\Item.png", D3DCOLOR_XRGB(255, 225, 225));
+	textures->Add(ID_TEX_ITEM, L"textures\\Item.png", D3DCOLOR_XRGB(128, 0, 0));
 
 
 	CSprites * sprites = CSprites::GetInstance();
@@ -216,14 +227,6 @@ void LoadResources()
 	while (infile)
 	{
 		infile >> arr[0] >> arr[1] >> arr[2] >> arr[3] >> arr[4] >> arr[5];
-		//if (arr[5] == 0)
-		//	idTextures = texSimon;
-		//else if (arr[5] == 1)
-		//	idTextures = texBrick;
-		//else if (arr[5] == 2)
-		//	idTextures = texFirePots;
-		//else if (arr[5] == 3)
-		//	idTextures = texMap;
 		switch (arr[5])
 		{
 		case 0:
@@ -250,7 +253,6 @@ void LoadResources()
 		sprites->Add(arr[0], arr[1], arr[2], arr[3], arr[4], idTextures);
 	}
 	infile.close();
-
 
 
 	LPANIMATION ani;
@@ -306,6 +308,7 @@ void LoadResources()
 
 	
 
+
 	whip = new Weapons();
 	whip->AddAnimation(699);		//do nothing
 	whip->AddAnimation(700);		//lv1 whip right
@@ -316,7 +319,10 @@ void LoadResources()
 	whip->AddAnimation(721);		//lv3 whip left
 	objects2.push_back(whip);
 
-	
+	dagger = new Dagger();
+	dagger->AddAnimation(804);
+	dagger->AddAnimation(805);
+	objects2.push_back(dagger);
 
 	for (int i = 0; i < 51; i++)
 	{
@@ -330,8 +336,8 @@ void LoadResources()
 		FirePots *firepots = new FirePots();
 		firepots->AddAnimation(603);
 		firepots->AddAnimation(602);
-		firepots->SetPosition(130 + i * 100.0f, GROUND_HEIGHT);
 		firepots->setID(i);
+		firepots->SetPosition(130 + i * 100.0f, GROUND_HEIGHT+5.5f);
 		objects2.push_back(firepots);
 	}
 
@@ -367,7 +373,7 @@ void Update(DWORD dt)
 	{
 		coObjects.push_back(objects[i]);
 	}
-
+	
 	for (int i = 0; i < objects.size(); i++)
 	{
 		objects[i]->Update(dt, &coObjects);
@@ -386,7 +392,6 @@ void Update(DWORD dt)
 	{
 		coObjects2.push_back(objects2[i]);
 	}
-
 	for (int i = 0; i < objects2.size(); i++)
 	{
 		objects2[i]->Update(dt, &coObjects2);
@@ -394,7 +399,6 @@ void Update(DWORD dt)
 
 	float cx, cy;
 	simon->GetPosition(cx, cy);
-
 	//keep Simon inside the screen
 	if (cx < SCREEN_EDGE_LEFT)
 	{

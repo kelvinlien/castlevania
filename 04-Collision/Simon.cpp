@@ -126,10 +126,14 @@ void Simon::SetState(int state)
 	switch (state)
 	{
 	case SIMON_STATE_WALKING_RIGHT:
+		if (IsSitting)
+			break;
 		vx = SIMON_WALKING_SPEED;
 		nx = 1;
 		break;
 	case SIMON_STATE_WALKING_LEFT:
+		if (IsSitting)
+			break;
 		vx = -SIMON_WALKING_SPEED;
 		nx = -1;
 		break;
@@ -168,7 +172,7 @@ void Simon::SetState(int state)
 	case SIMON_STATE_STAND:
 		y -= 5;
 		IsSitting = false;
-		IsJumping = false;
+		/*IsJumping = false;*/
 		break;
 	case SIMON_STATE_DIE:
 		vy = -SIMON_DIE_DEFLECT_SPEED;
