@@ -104,7 +104,7 @@ void Simon::Render()
 	if (animations[ani]->GetCurrentFrame() == lastFrame)
 	{
 		IsAttacking = false;
-		IsSitting = false;
+		/*IsSitting = false;*/
 		IsJumping = false;
 	}
 	
@@ -117,14 +117,20 @@ void Simon::SetState(int state)
 	switch (state)
 	{
 	case SIMON_STATE_WALKING_RIGHT:
+		if (IsSitting)
+			break;
 		vx = SIMON_WALKING_SPEED;
 		nx = 1;
 		break;
 	case SIMON_STATE_WALKING_LEFT:
+		if (IsSitting)
+			break;
 		vx = -SIMON_WALKING_SPEED;
 		nx = -1;
 		break;
 	case SIMON_STATE_JUMP:
+		if (IsJumping)
+			break;
 		vy = -SIMON_JUMP_SPEED_Y;
 		IsJumping = true;
 		break;
@@ -155,7 +161,7 @@ void Simon::SetState(int state)
 	case SIMON_STATE_STAND:
 		y -= 5;
 		IsSitting = false;
-		IsJumping = false;
+		/*IsJumping = false;*/
 		break;
 	case SIMON_STATE_DIE:
 		vy = -SIMON_DIE_DEFLECT_SPEED;

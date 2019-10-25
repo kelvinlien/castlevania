@@ -7,7 +7,7 @@
 #define  WHIP_ANI_LEFT     2
 #define WHIP_BBOX_WIDTH    23
 #define WHIP_BBOX_HEIGHT   8
-class Weapons :public CGameObject
+class Weapon :public CGameObject
 {
 	DWORD timer = 0;
 	Simon *Simon_clone;

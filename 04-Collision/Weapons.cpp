@@ -3,7 +3,7 @@
 #include "FirePots.h"
 #include<iostream>
 
-void Weapons::Update(DWORD time,vector<LPGAMEOBJECT>*coObjects)
+void Weapon::Update(DWORD time,vector<LPGAMEOBJECT>*coObjects)
 {
 	if (Simon_clone->nx > 0)
 	{
@@ -68,7 +68,7 @@ void Weapons::Update(DWORD time,vector<LPGAMEOBJECT>*coObjects)
 		}
 	}
 }
-void Weapons::Render()
+void Weapon::Render()
 {
 	int ani;
 	ani = WHIP_ANI_NOTHING;
@@ -85,7 +85,7 @@ void Weapons::Render()
 		WhipAttack = false;
 		
 }
-void Weapons::SetState(int stat)
+void Weapon::SetState(int stat)
 {
 	CGameObject::SetState(stat);
 	switch (state=WHIP_STATE_ATTACK)
@@ -95,7 +95,7 @@ void Weapons::SetState(int stat)
 		break;
 	}
 }
-void Weapons::GetBoundingBox(float &left, float &top, float &right, float &bottom)
+void Weapon::GetBoundingBox(float &left, float &top, float &right, float &bottom)
 {
 	if (Simon_clone->nx > 0)
 	{
