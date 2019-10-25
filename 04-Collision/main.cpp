@@ -45,7 +45,7 @@ o
 #define SCREEN_EDGE_LEFT 0
 #define SCREEN_EDGE_RIGHT 740
 
-#define MAX_FRAME_RATE 120
+#define MAX_FRAME_RATE 12000
 
 #define ID_TEX_SIMON 0
 #define ID_TEX_EFFECT 10	

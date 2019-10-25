@@ -57,7 +57,10 @@ void Weapons::Update(DWORD time,vector<LPGAMEOBJECT>*coObjects)
 		}
 		else if (animations[ani_left]->GetCurrentFrame() == 2)
 		{
-			this->x = Simon_clone->x - 18.5f;
+			if (ani_left != WHIP_ANI_LV3_LEFT)
+				this->x = Simon_clone->x - 20.5f;
+			else
+				this->x = Simon_clone->x - 20.5f - 20.5f;
 			this->y = Simon_clone->y + 5.5f;
 		}
 		else
@@ -128,6 +131,7 @@ void Weapons::SetState(int stat)
 void Weapons::GetBoundingBox(float &left, float &top, float &right, float &bottom)
 {
 	int ani_left, ani_right;
+	float fullLength = SHORT_WHIP_FULL_LENGTH;
 	switch (level)
 	{
 	case 1:
@@ -141,6 +145,7 @@ void Weapons::GetBoundingBox(float &left, float &top, float &right, float &botto
 	default:
 		ani_left = WHIP_ANI_LV3_LEFT;
 		ani_right = WHIP_ANI_LV3_RIGHT;
+		fullLength = LONG_WHIP_FULL_LENGTH;
 	}
 	if (Simon_clone->nx > 0)
 	{
@@ -162,7 +167,7 @@ void Weapons::GetBoundingBox(float &left, float &top, float &right, float &botto
 		{
 			left = x;
 			top = y;
-			right = x + 23.0f;
+			right = x + fullLength;
 			bottom = y + 8.0f;
 		}
 	}
@@ -186,7 +191,7 @@ void Weapons::GetBoundingBox(float &left, float &top, float &right, float &botto
 		{
 			left = x;
 			top = y;
-			right = x + 23.0f;
+			right = x + fullLength;
 			bottom = y + 8.0f;
 		}
 	}

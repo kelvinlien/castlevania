@@ -11,6 +11,8 @@
 #define  WHIP_ANI_LV3_LEFT     6
 #define WHIP_BBOX_WIDTH    23
 #define WHIP_BBOX_HEIGHT   8
+#define SHORT_WHIP_FULL_LENGTH 23
+#define LONG_WHIP_FULL_LENGTH 44
 class Weapons :public CGameObject
 {
 	DWORD timer = 0;
