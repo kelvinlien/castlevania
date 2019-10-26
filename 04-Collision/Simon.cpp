@@ -45,7 +45,10 @@ void Simon::Update(DWORD dt, vector<LPGAMEOBJECT> *coObjects)
 		y += min_ty * dy + ny * 0.4f;
 
 		if (nx != 0) vx = 0;
-		if (ny != 0) vy = 0;
+		if (ny != 0) {
+			vy = 0;
+			IsJumping = false;
+		}
 	}
 	// clean up collision events
 	for (UINT i = 0; i < coEvents.size(); i++) delete coEvents[i];
@@ -66,9 +69,9 @@ void Simon::Render()
 			ani = SIMON_ANI_SIT_ATTACK_LEFT;
 
 	}
-	else if (IsSitting )
+	else if (IsSitting || IsJumping)
 	{
-		lastFrame = 1;
+		
 		if (nx > 0)
 			ani = SIMON_ANI_SIT_RIGHT;
 		else
@@ -77,7 +80,7 @@ void Simon::Render()
 	}
 	else if (IsAttacking)
 	{
-		lastFrame = 2;
+		lastFrame = 3;
 		if (nx > 0)
 			ani = SIMON_ANI_ATTACK_RIGHT;
 		else
@@ -105,17 +108,10 @@ void Simon::Render()
 	if (untouchable) alpha = 128;
 	animations[ani]->Render(x, y, alpha);
 	RenderBoundingBox();
-	if (animations[ani]->GetCurrentFrame() == lastFrame)
-	{
-		if (IsAttacking)
-			IsAttacking = false;
-		if (IsSitting) {
-			IsSitting = false;
-		}
-		if (IsJumping)
-			IsJumping = false;
-	}
-
+	if (IsAttacking) {
+	   if (animations[ani]->GetCurrentFrame() == lastFrame)
+		IsAttacking = false;
+    }
 	
 }
 
@@ -138,22 +134,23 @@ void Simon::SetState(int state)
 		nx = -1;
 		break;
 	case SIMON_STATE_JUMP:
-		if (IsJumping)
+		if (IsJumping||IsSitting)
 			break;
 		IsJumping = true;
 		vy = -SIMON_JUMP_SPEED_Y;
 		break;
 	case SIMON_STATE_IDLE:
 		vx = 0;
-		IsJumping = false;
 		break;
 	case SIMON_STATE_ATTACK:
 		vx = 0;
 		IsAttacking = true;
 		break;
 	case SIMON_STATE_SIT_IDLE:
+		if (IsSitting || IsJumping)
+			break;
 		vx = 0;
-		/*y+=4;*/
+		y += 0.1f;
 		IsSitting = true;
 		IsJumping = false;
 		break;
@@ -172,7 +169,6 @@ void Simon::SetState(int state)
 	case SIMON_STATE_STAND:
 		y -= 5;
 		IsSitting = false;
-		/*IsJumping = false;*/
 		break;
 	case SIMON_STATE_DIE:
 		vy = -SIMON_DIE_DEFLECT_SPEED;

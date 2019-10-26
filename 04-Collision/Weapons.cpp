@@ -3,7 +3,7 @@
 #include "FirePots.h"
 #include<iostream>
 
-void Weapon::Update(DWORD time,vector<LPGAMEOBJECT>*coObjects)
+void Weapons::Update(DWORD time,vector<LPGAMEOBJECT>*coObjects)
 {
 	int ani_left, ani_right;
 	switch (level)
@@ -86,7 +86,7 @@ void Weapon::Update(DWORD time,vector<LPGAMEOBJECT>*coObjects)
 		}
 	}
 }
-void Weapon::Render()
+void Weapons::Render()
 {
 	int ani_left, ani_right;
 	switch (level)
@@ -118,7 +118,7 @@ void Weapon::Render()
 		WhipAttack = false;
 		
 }
-void Weapon::SetState(int stat)
+void Weapons::SetState(int stat)
 {
 	CGameObject::SetState(stat);
 	switch (state=WHIP_STATE_ATTACK)
@@ -128,7 +128,7 @@ void Weapon::SetState(int stat)
 		break;
 	}
 }
-void Weapon::GetBoundingBox(float &left, float &top, float &right, float &bottom)
+void Weapons::GetBoundingBox(float &left, float &top, float &right, float &bottom)
 {
 	int ani_left, ani_right;
 	float fullLength = SHORT_WHIP_FULL_LENGTH;

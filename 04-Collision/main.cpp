@@ -60,7 +60,7 @@ CGame *game;
 
 Simon *simon;
 FirePots *firepots;
-Weapon *whip;
+Weapons *whip;
 Dagger *dagger;
 
 vector<LPGAMEOBJECT> objects;
@@ -81,10 +81,7 @@ void CSampleKeyHander::OnKeyDown(int KeyCode)
 	switch (KeyCode)
 	{
 	case DIK_SPACE:
-		if (simon->Get_IsSitting()) return;
-		if (simon->Get_IsAttack()) return;
 		if (simon->Get_IsJumping()) return;
-		if (simon->GetState() != SIMON_STATE_JUMP)
 			simon->SetState(SIMON_STATE_JUMP);
 		break;
 	case DIK_A: // reset
@@ -291,37 +288,44 @@ void LoadResources()
 	}
 	myfile.close();
 
-	simon = new Simon();
-	simon->AddAnimation(400);		// idle right big
-	simon->AddAnimation(401);		// idle left big
-	simon->AddAnimation(500);		// walk right big
-	simon->AddAnimation(501);		// walk left big
-	simon->AddAnimation(502);		//attack right
-	simon->AddAnimation(503);		//attack left
-	simon->AddAnimation(504);       
-	simon->AddAnimation(505);
-	simon->AddAnimation(599);		// die
-	simon->AddAnimation(510);		//sit attack left
-	simon->AddAnimation(511);		//sit attack right
-	simon->SetPosition(50.0f, 0);
-	objects.push_back(simon);
-
+	infile.open("ReadFile\\AddAni.txt");
+	int obj, row2; int id[15];
 	
-
-
-	whip = new Weapons();
-	whip->AddAnimation(699);		//do nothing
-	whip->AddAnimation(700);		//lv1 whip right
-	whip->AddAnimation(701);		//lv1 whip left
-	whip->AddAnimation(710);		//lv2 whip right
-	whip->AddAnimation(711);		//lv2 whip left
-	whip->AddAnimation(720);		//lv3 whip right
-	whip->AddAnimation(721);		//lv3 whip left
+	while (infile){  
+		infile >> obj >> row2;
+		if(obj==1)
+		{
+			simon = new Simon();
+			for (int i = 0; i < row2; i++)
+			{
+				infile >> id[i];
+				simon->AddAnimation(id[i]);
+			}
+			simon->SetPosition(50.0f, 0);
+			
+		}
+		if (obj == 2)
+		{
+			whip = new Weapons();
+			for (int i = 0; i < row2; i++)
+			{
+				infile >> id[i];
+				whip->AddAnimation(id[i]);
+			}
+		}
+		if (obj == 3)
+		{
+			dagger = new Dagger();
+			for (int i = 0; i < row2; i++)
+			{
+				infile >> id[i];
+				dagger->AddAnimation(id[i]);
+			}
+		}
+		
+	}
+	objects.push_back(simon);
 	objects2.push_back(whip);
-
-	dagger = new Dagger();
-	dagger->AddAnimation(804);
-	dagger->AddAnimation(805);
 	objects2.push_back(dagger);
 
 	for (int i = 0; i < 51; i++)
