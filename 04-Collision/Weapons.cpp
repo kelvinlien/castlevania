@@ -80,8 +80,10 @@ void Weapons::Update(DWORD time,vector<LPGAMEOBJECT>*coObjects)
 			firepots->GetBoundingBox(l1, t1, r1, b1);
 			if (t < b1 && b>t1 && r>l1 && l<r1 )
 			{
-				if (firepots->GetState()!= FIREPOTS_STATE_BREAK)
+				if (firepots->GetState() == FIREPOTS_STATE_BURN)
+				{
 					firepots->SetState(FIREPOTS_STATE_BREAK);
+				}
 			}
 		}
 	}

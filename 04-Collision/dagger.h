@@ -7,7 +7,7 @@
 #define  DAGGER_ANI_LEFT     1
 #define DAGGER_BBOX_WIDTH    17
 #define DAGGER_BBOX_HEIGHT   9
-#define DAGGER_SPEED		 0.1f
+#define DAGGER_SPEED		 0.3f
 class Dagger :public CGameObject
 {
 	DWORD timer = 0;

@@ -65,7 +65,6 @@ Dagger *dagger;
 
 vector<LPGAMEOBJECT> objects;
 vector<LPGAMEOBJECT> objects2;
-vector<LPGAMEOBJECT> effect;
 class CSampleKeyHander : public CKeyEventHandler
 {
 	virtual void KeyState(BYTE *states);
@@ -340,26 +339,31 @@ void LoadResources()
 		FirePots *firepots = new FirePots();
 		firepots->AddAnimation(603);
 		firepots->AddAnimation(602);
+
+		//add effect and heart ani
+		firepots->AddAnimation(1001);		//firepot broke ani
+		firepots->AddAnimation(803);		//big heart ani
+
 		firepots->setID(i);
 		firepots->SetPosition(130 + i * 100.0f, GROUND_HEIGHT+5.5f);
 		objects2.push_back(firepots);
 	}
 
 
-	for (int i = 0; i < 4; i++)
-	{
-		Effect* ef = new Effect();
-		ef->AddAnimation(1001);
-		ef->SetPosition(130 + i * 100.0f, 125);
-		effect.push_back(ef);
-	}
+	//for (int i = 0; i < 4; i++)
+	//{
+	//	Effect* ef = new Effect();
+	//	ef->AddAnimation(1001);
+	//	ef->SetPosition(130 + i * 100.0f, 125);
+	//	effect.push_back(ef);
+	//}
 
-	for (int i = 0; i < 4; i++)
-	{
-		Heart* it = new Heart(true);
-		it->SetPosition(130 + i * 100.0f, 125);
-		objects.push_back(it);
-	}
+	//for (int i = 0; i < 4; i++)
+	//{
+	//	Heart* it = new Heart(true);
+	//	it->SetPosition(130 + i * 100.0f, 125);
+	//	objects.push_back(it);
+	//}
 }
 
 /*
@@ -373,32 +377,54 @@ void Update(DWORD dt)
 	whip->Get_simon(simon);
 	vector<LPGAMEOBJECT> coObjects;
 	vector<LPGAMEOBJECT> coObjects2;
-	for (int i = 1; i < objects.size(); i++)
-	{
-		coObjects.push_back(objects[i]);
-	}
-	
-	for (int i = 0; i < objects.size(); i++)
-	{
-		objects[i]->Update(dt, &coObjects);
-		if (dynamic_cast<FirePots*>(objects.at(i)))//is firepots
-		{
-			FirePots* fp = dynamic_cast<FirePots*>(objects.at(i));
-			if (fp->GetState() == FIREPOTS_STATE_BREAK)
-			{
-				int id = fp->getID();
-				effect[id]->Update(dt);
-			}
-
-		}
-	}
 	for (int i = 1; i < objects2.size(); i++)
 	{
-		coObjects2.push_back(objects2[i]);
+		if (dynamic_cast<FirePots*>(objects2.at(i)))
+		{
+			FirePots* firepots = dynamic_cast<FirePots*>(objects2.at(i));
+			if (firepots->GetState() == FIREPOTS_STATE_ITEM)
+			{
+				objects.push_back(firepots);
+				objects2.erase(objects2.begin() + i);
+			}
+			else
+			{
+				coObjects2.push_back(objects2[i]);
+			}
+		}
+		else
+		{
+			coObjects2.push_back(objects2[i]);
+		}
 	}
 	for (int i = 0; i < objects2.size(); i++)
 	{
 		objects2[i]->Update(dt, &coObjects2);
+	}
+
+	for (int i = 1; i < objects.size(); i++)
+	{
+		if (dynamic_cast<FirePots*>(objects.at(i)))
+		{
+			FirePots* firepots = dynamic_cast<FirePots*>(objects.at(i));
+			if (firepots->GetState() == FIREPOTS_STATE_TIMEOUT)
+			{
+				objects.erase(objects.begin() + i);
+			}
+			else
+			{
+				coObjects.push_back(objects[i]);
+			}
+		}
+		else
+		{
+			coObjects.push_back(objects[i]);
+		}
+	}
+
+	for (int i = 0; i < objects.size(); i++)
+	{
+		objects[i]->Update(dt, &coObjects);
 	}
 
 	float cx, cy;
@@ -440,24 +466,10 @@ void Render()
 		for (int i = 0; i < objects.size(); i++)
 		{
 			objects[i]->Render();
-			if (dynamic_cast<FirePots*>(objects.at(i)))//is firepots
-			{
-				FirePots* fp = dynamic_cast<FirePots*>(objects.at(i));
-				if (fp->GetState() == FIREPOTS_STATE_BREAK)
-				{
-					int id = fp->getID();
-					effect[id]->Render();
-				}
-
-			}
 		}
 		for (int i = 0; i < objects2.size(); i++)
 		{
 			objects2[i]->Render();
-		}
-		for (int i = 0; i < effect.size(); i++)
-		{
-			effect[i]->Render();
 		}
 		spriteHandler->End();
 		d3ddv->EndScene();

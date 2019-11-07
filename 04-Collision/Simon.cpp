@@ -1,6 +1,6 @@
 ﻿#include <algorithm>
 #include "debug.h"
-
+#include "FirePots.h"
 #include "Simon.h"
 #include "Game.h"
 
@@ -49,7 +49,39 @@ void Simon::Update(DWORD dt, vector<LPGAMEOBJECT> *coObjects)
 			vy = 0;
 			IsJumping = false;
 		}
+		for (UINT i = 0; i < coEventsResult.size(); i++)
+		{
+			LPCOLLISIONEVENT e = coEventsResult[i];
+
+			if (dynamic_cast<FirePots*>(e->obj)) // if e->obj is Goomba 
+			{
+				FirePots* firepot = dynamic_cast<FirePots*>(e->obj);
+				if (firepot->GetState() == FIREPOTS_STATE_ITEM)
+				{
+					firepot->SetState(FIREPOTS_STATE_REWARDED);
+				}
+			}
+		}
 	}
+	for (UINT i = 0; i < coObjects->size(); i++)
+	{
+
+		if (dynamic_cast<FirePots*>(coObjects->at(i)))//is firepots
+		{
+			FirePots* firepots = dynamic_cast<FirePots*>(coObjects->at(i));
+			float l, t, r, b, l1, t1, r1, b1;
+			GetBoundingBox(l, t, r, b);
+			firepots->GetBoundingBox(l1, t1, r1, b1);
+			if (t < b1 && b>t1 && r > l1 && l < r1)
+			{
+				if (firepots->GetState() == FIREPOTS_STATE_ITEM)
+				{
+					firepots->SetState(FIREPOTS_STATE_REWARDED);
+				}
+			}
+		}
+	}
+
 	// clean up collision events
 	for (UINT i = 0; i < coEvents.size(); i++) delete coEvents[i];
 }
