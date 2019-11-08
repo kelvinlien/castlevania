@@ -41,11 +41,12 @@ void FirePots::SetState(int stat)
 	if (state == FIREPOTS_STATE_BREAK)
 	{
 		IsBreak = true;
+		y += FIREPOTS_BBOX_HEIGHT / 2;
 	}
-	else if (state == FIREPOTS_STATE_BURN)
-	{
-		IsBreak = false;
-	}
+	//else if (state == FIREPOTS_STATE_BURN)
+	//{
+	//	IsBreak = false;
+	//}
 	else if (state == FIREPOTS_STATE_REWARDED)
 	{
 		picked = true;
@@ -71,77 +72,61 @@ void FirePots::GetBoundingBox(float &l, float &t, float &r, float &b)
 
 void FirePots::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 {
-	dy = dt * vy;
-	if (state != FIREPOTS_STATE_BURN)
+	if (!picked && !disappear)
 	{
-		if (timer <= 300)			//effect time
+		dy = dt * vy;
+		if (state != FIREPOTS_STATE_BURN)
 		{
-			timer += dt;
+			if (timer <= 300)			//effect time
+			{
+				timer += dt;
+			}
+			else if (timer <= 3000)		//item exist time
+			{
+				vy = 0.03f;
+				state = FIREPOTS_STATE_ITEM;
+				timer += dt;
+			}
+			else
+			{
+				timer = 0;
+				disappear = true;
+				state = FIREPOTS_STATE_TIMEOUT;
+			}
 		}
-		else if (timer <= 3000)		//item exist time
-		{
-			vy = 0.01f;
-			state = FIREPOTS_STATE_ITEM;
-			timer += dt;
-		}
-		else
-		{
-			timer = 0;
-			disappear = true;
-			state = FIREPOTS_STATE_TIMEOUT;
-		}
-	}
 
-	vector<LPCOLLISIONEVENT> coEvents;
-	vector<LPCOLLISIONEVENT> coEventsResult;
+		vector<LPCOLLISIONEVENT> coEvents;
+		vector<LPCOLLISIONEVENT> coEventsResult;
 
-	coEvents.clear();
-
-	if (!picked || !disappear)
+		coEvents.clear();
 		CalcPotentialCollisions(coObjects, coEvents);
 
-	if (coEvents.size() == 0)
-	{
-		x += dx;
-		y += dy;
-	}
-
-	else
-	{
-		float min_tx, min_ty, nx = 0, ny;
-
-		FilterCollision(coEvents, coEventsResult, min_tx, min_ty, nx, ny);
-
-		// block 
-		x += min_tx * dx + nx * 0.4f;		// nx*0.4f : need to push out a bit to avoid overlapping next frame
-		y += min_ty * dy + ny * 0.4f;
-		for (UINT i = 0; i < coEventsResult.size(); i++)
+		if (coEvents.size() == 0)
 		{
-			LPCOLLISIONEVENT e = coEventsResult[i];
+			x += dx;
+			y += dy;
+		}
 
-			if (dynamic_cast<CBrick*>(e->obj)) // if e->obj is Goomba 
+		else
+		{
+			float min_tx, min_ty, nx = 0, ny;
+
+			FilterCollision(coEvents, coEventsResult, min_tx, min_ty, nx, ny);
+
+			// block 
+			x += min_tx * dx + nx * 0.4f;		// nx*0.4f : need to push out a bit to avoid overlapping next frame
+			y += min_ty * dy + ny * 0.4f;
+			for (UINT i = 0; i < coEventsResult.size(); i++)
 			{
-				vy = 0;
+				LPCOLLISIONEVENT e = coEventsResult[i];
+
+				if (dynamic_cast<CBrick*>(e->obj)) // if e->obj is Goomba 
+				{
+					vy = 0;
+				}
 			}
 		}
 	}
-
-
-
-	return;
-}
-
-bool FirePots::isBreak()
-{
-	return IsBreak;
-}
-
-void FirePots::setID(int ID)
-{
-	id = ID;
-}
-
-int FirePots::getID()
-{
-	return id;
+	else
+		return;
 }

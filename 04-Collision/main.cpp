@@ -344,7 +344,6 @@ void LoadResources()
 		firepots->AddAnimation(1001);		//firepot broke ani
 		firepots->AddAnimation(803);		//big heart ani
 
-		firepots->setID(i);
 		firepots->SetPosition(130 + i * 100.0f, GROUND_HEIGHT+5.5f);
 		objects2.push_back(firepots);
 	}
@@ -407,7 +406,7 @@ void Update(DWORD dt)
 		if (dynamic_cast<FirePots*>(objects.at(i)))
 		{
 			FirePots* firepots = dynamic_cast<FirePots*>(objects.at(i));
-			if (firepots->GetState() == FIREPOTS_STATE_TIMEOUT)
+			if (firepots->GetState() == FIREPOTS_STATE_TIMEOUT || firepots->GetState() == FIREPOTS_STATE_REWARDED)
 			{
 				objects.erase(objects.begin() + i);
 			}

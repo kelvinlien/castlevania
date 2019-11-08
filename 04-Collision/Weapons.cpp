@@ -84,6 +84,10 @@ void Weapons::Update(DWORD time,vector<LPGAMEOBJECT>*coObjects)
 				{
 					firepots->SetState(FIREPOTS_STATE_BREAK);
 				}
+				if (firepots->GetState() == FIREPOTS_STATE_ITEM)
+				{
+					firepots->SetState(FIREPOTS_STATE_REWARDED);
+				}
 			}
 		}
 	}

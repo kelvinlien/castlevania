@@ -44,9 +44,7 @@ void Dagger::Update(DWORD dt, vector<LPGAMEOBJECT>*coObjects)
 				if (dynamic_cast<FirePots *>(e->obj)) // if e->obj is Firepots
 				{
 					FirePots *firepots = dynamic_cast<FirePots *>(e->obj);
-
-					// va cham ben phai 
-					if (firepots->nx < 0 || firepots->nx >0)
+					if (firepots->GetState() == FIREPOTS_STATE_BURN)
 					{
 						this->SetState(DAGGER_STATE_COLLISION);
 						firepots->SetState(FIREPOTS_STATE_BREAK);

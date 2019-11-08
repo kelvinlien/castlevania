@@ -31,8 +31,5 @@ public:
 	void SetState(int stat);
 	virtual void GetBoundingBox(float &l, float &t, float &r, float &b);
 	void Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects);
-	bool isBreak();
-	void setID(int ID);
-	int getID();
 	
 };
